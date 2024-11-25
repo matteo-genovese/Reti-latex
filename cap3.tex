@@ -251,5 +251,32 @@ I buffer hanno dimensione \textit{finita}
 \subsubsection*{Scenario 4}
 
 \subsection{Controllo di congestione}
+Bisogna limitare la trasmissione, si effettua mdiante una "finestra di congestione" (CongWin), cioè una funzione dinamina della congestione. 
+\[\text{Frequenza d'invio} = \frac{\text{CongWin}}{\text{RTT}} \text{byte/sec}\] 
+Definiamola come una misura a spanne, non precisa. \\
 
+Il mittente si accorge della congestione tramite il \textit{timeout} o il \textit{triplice ACK duplicato}.
+Il mittente riduce la \textit{frequenza d'invio} dopo essersi accorto, con tre meccanismi:
+\begin{enumerate}
+  \item \textbf{Partenza lenta}: Stabilita la connessione si manda un solo pacchetto. All'inizio la velocità di trasmissione è molto lenta, poi crescerà a livello esponenziale finché non si verifica un evento di perdita, raddoppiamo la \textit{finestra di congestione} dopo ogni \textit{RTT} (ogni volta che torna un \textit{ACK}). La \textit{partenza lenta} progredisce fino a un valore di soglia deciso dai progettisti. \\ 
+    \includegraphics[width=\textwidth]{./img/partenzalenta.png} \\
+    Nel caso di \textit{triplice ACK duplicato} si passa all'algoritmo successivo per una crescita più lenta, impostando però:
+    \[\text{valore di soglia} = \frac{\text{CongWin}}{2}\]
+    \[\text{CongWin} = \text{valore di soglia}\]
+  \item \textbf{AIMD}: Incremento additivo, decremento moltiplicativo in italiano. \textbf{Fase a regime}, dopo la partenza lenta. La crescita della \textit{finestra} continua in maniera lineare di \textbf{1 MSS} dopo ogni \textit{RTT}, nel caso di errori la \textit{finestra} viene \textbf{dimezzata}. Questo è il suo andamento: \\
+    \includegraphics[width=\textwidth]{./img/AIMD.png} \\ 
+    Il suo funzionamento è così diagrammato: \\ 
+    \includegraphics[width=\textwidth]{./img/AIMD-2.png} \\ 
+    negli esercizi, in caso di perdita di \textit{ACK}, arrotondiamo a +1 la frazione, solo per comodità. Nella realtà, essendo in byte, si fa il calcolo e si mantiene quel valore, non ci sono problemi in caso di perdità di ACK poiché l'ACK cumulativo conferma pure il pacchetto perso.
+  \item \textbf{Reazione agli eventi di perdita}: Dividiamo i casi. Nel caso in cui si verifica il \textit{timeout} resettiamo la \textit{finestra} a 1, tornando così alla \textit{partenza lenta}, il valore di soglia viene impostato a 
+    \[\text{Valore di soglia} = \frac{\text{CongWin}}{2} \]
+    \[\text{CongWin} = 1\] \\ 
+    Nel caso in cui abbaimo una perdita (\textbf{Fast recovery}), \textit{triplice ACK duplicato}, imposto 
+    \[\text{CongWin} = \frac{\text{CongWin}}{2} \]
+    \[\text{Valore di soglia} = \text{CongWin}\]
+\end{enumerate}
 
+\subsubsection*{Diagramma riassuntivo}
+\includegraphics[width=\textwidth]{./img/diagrammacontrollodicongestione.png} \\
+
+\subsubsection{Throughput TCP}
