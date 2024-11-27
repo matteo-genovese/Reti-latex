@@ -280,3 +280,71 @@ Il mittente riduce la \textit{frequenza d'invio} dopo essersi accorto, con tre m
 \includegraphics[width=\textwidth]{./img/diagrammacontrollodicongestione.png} \\
 
 \subsubsection{Throughput TCP}
+
+\subsection{Programmazione delle socket}
+Le \textbf{socket} mettono in comunicazione \textit{livello applicativo} con il \textit{livello di trasporto}. 
+Esistono due tipi di \textit{socket}: \textbf{UDP} e \textbf{TCP}. 
+
+Il \textit{server} crea una socket col comando \texttt{socket()}, inizialmente crea la \texttt{socket di benvenuto}, quindi si crea una \textit{socket} senza parametri, bisogna comunicarglieli successivament.
+Il \textit{server} aggancia i parametri alla \textit{socket} precedentemente creata tramite il comando \texttt{bind()}. Mettiamo il \textit{server} in stato di ascolto tramite il comando \texttt{listen()}. 
+
+Il \textit{client} crea una socket con i parametri del \textit{server}, tramite il comando \texttt{socket()}. 
+Il \textit{client} aggancia i 4 parametri alla \textit{socket} precedentemente creata con il comando \texttt{bind()}. 
+Il \textit{client} si connette al server mediante il comando \texttt{connect()}, il \textit{server} dall'altra parte accetterà la connessione sulla \textit{socket specifica} col comando \texttt{accept()}, e manda il messaggio \textbf{SYNACK}.
+Il \textit{client} manda il messaggio al \textit{server} mediante il comando \texttt{send()} che verrà ricevuto dal comando \texttt{recv()} dal \textit{server}, mandando in risposta tramite \texttt{send()} l'\textbf{ACK}, che verrà ricevuto dal \textit{client} tramite \texttt{recv()}. 
+
+Si usa il comando \texttt{close()} per chiudere la connessione, possono mandarlo sia \textit{server} che \textit{client}, mandando il messaggio di \textbf{FIN}, ricevendo in risposta un \textbf{FINACK}. 
+
+\subsubsection*{\texttt{socket()}}
+Creazione della \textit{socket}: \texttt{int s\_listen = socket(family, type, protocol);} \\ 
+family: AF\_INET specifica IPV4 \\ type: SOCK\_STREAM, SOCK\_DGRAM \\ protocol: 0 (pseudo, IP). \\
+Avremo un identificativo della socket come ritorno della funzione. 
+
+\subsubsection*{\texttt{bind()}}
+Aggancio dei parametri alla \textit{socket} precedentemente creata vuota: \\ 
+\texttt{bind(s\_listen = localAdd, AddLength);} \\
+Si specifica la porta su cui mettersi in ascolto. \\ 
+s\_listen: identificatore della \textit{socket} \\ 
+localAdd: di tipo \textbf{sockaddr\_in}, una struttura già definita. \\ 
+AddLength: lunghezza della variabile localAdd \\ 
+\includegraphics[width=\textwidth]{./img/struct_sockaddr_In.png} \\
+
+Definisco \texttt{struct sockaddr\_in sockAdd;}
+Imposto la famiglia: \texttt{sockAdd.sin\_family = AF\_INET;}
+Per impostare l'indirizzo IPV4 abbiamo due modi:
+\begin{enumerate}
+  \item Specifichiamo l'indirizzo da ascoltare: \texttt{inet\_pton(AF\_INET, “127.0.0.1”, \&sockAdd.sin\_addr.s\_addr);}
+  \item Ascolta da tutti gli indirizzi locali (in questo caso): \texttt{sockAdd.sin\_addr.s\_addr = htonl(INADDR\_ANY);}
+\end{enumerate}
+Imposto la porta: \texttt{sockAdd.sin\_port = htons(9999);}
+
+\subsubsection*{\texttt{listen()}}
+\texttt{int status = listen(s\_listen, queuelength);} \\ 
+Risultato: -1 errore, 0 ok \\ 
+s\_listen: riferimento alla socket \\ 
+queuelength: numero di client che possono stare in attesa. \\ 
+È una funzione \textbf{non bloccante}, ritorna immediatamente un valore. 
+
+\subsubsection*{\texttt{accept()}}
+\texttt{int s\_new = accept(s\_listen, \&clientAddress, \&AddLength);}
+s\_new: nuova socket per la comucazione con il client, fino ad adesso abbiamo usato una \textit{socket di benvenuto}. \\ 
+s\_listen: riferimento alla vecchia socket di benvenuto \\ 
+clientAddress: riferimento alla struttura sockAddr\_in con l'indirizzo del client. \\ 
+AddLength: dimensione della variabile clientAddress. \\ 
+È una funzione \textbf{bloccante}, ritorna un valore solo quando riceve una richiesta di connessione. 
+
+\subsubsection*{\texttt{send()}}
+\texttt{int send(int s\_new, const void *buf, int len, int flags);}
+s\_new: descrittore della socket \\ 
+buf: puntatore al buffer \\ 
+len: dimensione del buffer \\ 
+flags: da impostare a 0 
+
+\subsubsection*{\texttt{recv()}}
+\texttt{int recv(int s\_new, void *buf, int len, unsigned int flags);}
+Simile alla send \\ 
+buf: conterrà i dati da ricevere 
+
+\subsubsection*{\texttt{fork()}}
+Funzione della libreria di C, \textbf{biforca} il \textit{processo}, creando \textbf{processo padre} e \textbf{processo figlio}, processi identici con stesse variabili. Il \textit{processo figlio} gestirà le connessioni con il \textit{client} mentre col \textit{processo padre} gestiamo il \textit{listening}, rimandendo in \texttt{accept()}, ogni volta che gli arriverà una nuova richiesta per una socket faremo il \texttt{fork()} del processo padre, affidando al figlio la socket appena creata.
+
