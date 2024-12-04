@@ -331,7 +331,7 @@ s\_new: nuova socket per la comucazione con il client, fino ad adesso abbiamo us
 s\_listen: riferimento alla vecchia socket di benvenuto \\ 
 clientAddress: riferimento alla struttura sockAddr\_in con l'indirizzo del client. \\ 
 AddLength: dimensione della variabile clientAddress. \\ 
-È una funzione \textbf{bloccante}, ritorna un valore solo quando riceve una richiesta di connessione. 
+È una funzione \textbf{bloccante}, ritorna un valore solo quando riceve una richiesta di connessione e quindi un \textbf{SYN}.
 
 \subsubsection*{\texttt{send()}}
 \texttt{int send(int s\_new, const void *buf, int len, int flags);}
