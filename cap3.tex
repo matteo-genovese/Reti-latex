@@ -282,9 +282,11 @@ Il mittente riduce la \textit{frequenza d'invio} dopo essersi accorto, con tre m
 \subsubsection{Throughput TCP}
 
 \subsection{Programmazione delle socket}
+
 Le \textbf{socket} mettono in comunicazione \textit{livello applicativo} con il \textit{livello di trasporto}. 
 Esistono due tipi di \textit{socket}: \textbf{UDP} e \textbf{TCP}. 
 
+\subsubsection{Programmazione socket TCP}
 Il \textit{server} crea una socket col comando \texttt{socket()}, inizialmente crea la \texttt{socket di benvenuto}, quindi si crea una \textit{socket} senza parametri, bisogna comunicarglieli successivament.
 Il \textit{server} aggancia i parametri alla \textit{socket} precedentemente creata tramite il comando \texttt{bind()}. Mettiamo il \textit{server} in stato di ascolto tramite il comando \texttt{listen()}. 
 
@@ -348,3 +350,5 @@ buf: conterrà i dati da ricevere
 \subsubsection*{\texttt{fork()}}
 Funzione della libreria di C, \textbf{biforca} il \textit{processo}, creando \textbf{processo padre} e \textbf{processo figlio}, processi identici con stesse variabili. Il \textit{processo figlio} gestirà le connessioni con il \textit{client} mentre col \textit{processo padre} gestiamo il \textit{listening}, rimandendo in \texttt{accept()}, ogni volta che gli arriverà una nuova richiesta per una socket faremo il \texttt{fork()} del processo padre, affidando al figlio la socket appena creata.
 
+\subsubsection{Programmazione socket UDP}
+Non eiste il comando \texttt{listen()}. 

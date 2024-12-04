@@ -1,0 +1,14 @@
+\section{Livello rete}
+Mette in comunicazione gli \textbf{host}. È colui che trasporta i vari \textit{segmenti} (mandati dal livello di trasporto) e li trasforma in \textbf{datagrammi} lato mittente, mentre il destinatario consegna i \textbf{datagrammi} al livello trasporto, quindi \textit{segmenti}.
+Ci sono due funzioni principali a livello di rete 
+\begin{itemize}
+  \item \textbf{Inolto o forwarding}: è un'azione locale, definisce qual è il percorso per il destinatario desegnato, dipende dall'\textbf{instradamento}, l'\textit{instradamento} aggiorna i percorsi e li comunica all'\textit{inoltro}.
+  \item \textbf{Instradamento o routing}: Consiste nel trovare (non come) la strada migliore per andare da una sorgente a una destinazione.
+\end{itemize}
+
+\subsection{Architettura del router}
+Nel router abbiamo due compontenti, una si occupa dell'instradamneto e una si occupa dell'inoltro. 
+In alto abbiamo la componente che gestisce l'instradamento con un \textbf{algoritmo di instradamento}, sotto abbiamo la componente che gestisce l'inoltro, che avrà una tabella con tutte le informazioni mandate dalla componente di instradamento. 
+
+Il primo piano si chiamata \textbf{piano di controllo}. 
+Il secondo piano si chiamata \textbf{piano dei dati}. 
