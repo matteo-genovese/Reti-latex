@@ -45,10 +45,9 @@ int main(int argc, char *argv[]) {
     if (connect(sockfd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
         error("ERROR connecting");
 
-    printf("Please enter the command: ");
+    printf("Please enter the phrase: ");
 	bzero(buffer,256);
     fgets(buffer,255,stdin);
-
 
 	n = write(sockfd,buffer,strlen(buffer));
     if (n < 0)
@@ -64,3 +63,5 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+

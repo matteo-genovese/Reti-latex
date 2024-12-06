@@ -1,10 +1,6 @@
-/* A simple server in the internet domain using TCP
-   The port number is passed as an argument
- */
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <time.h>       /* funzioni time() e ctime() */
 #include <unistd.h>
 #include <sys/types.h>  /* tipi di dati di sistema */
