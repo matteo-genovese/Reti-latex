@@ -1,5 +1,5 @@
 \section{Livello rete}
-Mette in comunicazione gli \textbf{host}. È colui che trasporta i vari \textit{segmenti} (mandati dal livello di trasporto) e li trasforma in \textbf{datagrammi} lato mittente, mentre il destinatario consegna i \textbf{datagrammi} al livello trasporto, quindi \textit{segmenti}.
+Mette in comunicazione gli \textbf{host}. È implementato in ogni livello. È colui che trasporta i vari \textit{segmenti} (mandati dal livello di trasporto) e li trasforma in \textbf{datagrammi} lato mittente, mentre il destinatario consegna i \textbf{datagrammi} al livello trasporto, quindi \textit{segmenti}.
 Ci sono due funzioni principali a livello di rete 
 \begin{itemize}
   \item \textbf{Inolto o forwarding}: è un'azione locale, definisce qual è il percorso per il destinatario desegnato, dipende dall'\textbf{instradamento}, l'\textit{instradamento} aggiorna i percorsi e li comunica all'\textit{inoltro}.
@@ -11,4 +11,61 @@ Nel router abbiamo due compontenti, una si occupa dell'instradamneto e una si oc
 In alto abbiamo la componente che gestisce l'instradamento con un \textbf{algoritmo di instradamento}, sotto abbiamo la componente che gestisce l'inoltro, che avrà una tabella con tutte le informazioni mandate dalla componente di instradamento. 
 
 Il primo piano si chiamata \textbf{piano di controllo}. 
-Il secondo piano si chiamata \textbf{piano dei dati}. 
+Il secondo piano si chiamata \textbf{piano dei dati} diviso in:
+\begin{itemize}
+  \item \textbf{Porte di ingresso}: porte logiche, non sono le porte fisiche, è uno stream di dati \textit{socket}. 
+    Ha il livello fisico (ricezione di dati), livello di collegamento (ethernet) e livello di rete col commutazione decentralizzata: determina la porta d'uscita dei pacchetti tramite la tabella d'inoltro, nel caso in cui arrivano tanti datagrammi che il router non riesce a manipolare man mano crea un \textit{buffer di accodamento} dove memorizza i pacchetti. 
+  \item \textbf{Struttura di commutazione}: inizialmente era un computer che manipolava i dati e aveva le porte come periferiche (\textit{Commutazione in memoria}), ora usiamo la \textbf{commutazione tramite bus}:
+    le porte d'ingresso gestiscono l'indirizzamento del pacchetto, manipolano loro la circuteria per l'instradamento. 
+    La soluzione ideale è \textbf{crossbar switch}, sono percorsi in parallelo con $2n$ bus che collegano $n$ porte d'ingresso a $n$ porte d'uscita. 
+  \item \textbf{Porte di uscita}: porte logiche, non sono le porte fisiche, è uno stream di dati \textit{socket}. Hanno gli stessi livelli della \textit{porta d'ingresso} ma in modo speculare. 
+    Le funzionalità di \textit{livello rete} sono: \textbf{funzionalità di accodamento} che riframmenta i pacchetti nel caso in cui il \textit{livello di collegamento} ha un \textit{MTU} inferiore al precedente. 
+\end{itemize}
+
+\subsubsection{Tabelle di inoltro}
+
+
+\subsection{Protocollo internet: IP}
+Il protocollo \textbf{IP} (sia in versione 4 che in versione 6) stabilisce:
+\begin{itemize}
+  \item Convenizioni di indirizzamento
+  \item Formato dei datagrammi 
+  \item La manipolazione dei pacchetti
+\end{itemize}
+Il protocollo \textbf{ICMP}, dipendente dal protocollo \textit{IP}:
+\begin{itemize}
+  \item Notifica gli errori
+  \item Segnalazione del router
+\end{itemize}
+
+\subsubsection{Formato dei datagrammi}
+Lungo 32 bit. Abbiamo i seguenti campi:
+\begin{enumerate}
+  \item \begin{enumerate}
+      \item \textbf{Versione} del protocollo (4 o 6)
+      \item \textbf{Lunghezza intestazione}, variabile 
+      \item \textbf{Tipo di servizio} quanto è importante il datagramma (non molto utilizzato)
+      \item \textbf{Lunghezza del datagramma}
+  \end{enumerate}
+  \item \begin{enumerate}
+      \item \textbf{Identificatore a 16 bit}: 
+      \item \textbf{flag}:
+      \item \textbf{Spiazzamento di frammentazione a 13bit}:
+  \end{enumerate}
+  \item \begin{enumerate}
+      \item \textbf{Tempo di vita residuo}: \textit{TTL - Time to live}, quanti router può attraversa il datagramma, il datagramma nasce con un tempo di vita previsto, a ogni passaggio viene decrementato di 1, quando il \textit{TTL} arriva a 0 il router elimina il pacchetto.  
+      \item \textbf{Protocollo di livello superiore}: specifica quale \textit{protocollo} stiamo utilizzando a livello di \textit{trasporto}, per sapere a quale servizio del \textit{sistema operativo} mandare i pacchetti.
+      \item \textbf{Checksum} della sola intestazione, stesso algoritmo del protocollo \textit{UDP}, chiamato \textbf{checksum internet}, non comprendere il campo \textit{Dati}. Viene calcolata da ogni \textit{router} in cui passa. 
+  \end{enumerate}
+  \item \textbf{Indirizzo IP origine}
+  \item \textbf{Indirzzo IP destinazione}
+  \item \textbf{Campi opzionali}
+  \item \textbf{Dati}
+\end{enumerate}
+
+\subsubsection{frammentazione dei datagrammi IP}
+L'unità massima di trasmissione (\textbf{MTU}) è la quantità massima di dati che possono passare in quel determinato \textit{livello di collegamento}. 
+I \textbf{datagrammi IP} vengono frammentati in \textit{datagrammi} più piccoli. 
+
+\subsection{IPv4, Protocollo IP versione 4}
+
