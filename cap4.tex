@@ -68,4 +68,63 @@ L'unità massima di trasmissione (\textbf{MTU}) è la quantità massima di dati 
 I \textbf{datagrammi IP} vengono frammentati in \textit{datagrammi} più piccoli. 
 
 \subsection{IPv4, Protocollo IP versione 4}
+Ogni \textit{interfaccia di host} e \textit{router} hanno un \textbf{indirizzo IP univoco da 32 bit}. 
+L'\textbf{interfaccia} è il confine tra host e collegamento fisico, i \textit{router} devono avere almeno due collegamenti fisici  e per ogni \textit{interfaccia} è associato un \textbf{indirizzo IP}. 
 
+\subsubsection{Sottorete}
+L'\textit{indirizzo IP} è diviso in due parti:
+\begin{itemize}
+  \item \textbf{Parte di sottorete}: bit di alto ordine. 
+  \item \textbf{Parte dell'host}: bit di basso ordine. 
+\end{itemize}
+Una sottorete è definita anche come \textit{reti IP}. 
+
+\subsubsection{Assegnazione indirizzi internet CIDR}
+\textbf{CIDR}: Classes InterDomain Routing \\ 
+L'\textit{indirizzo IP} viene diviso in $a.b.c.d/x$ dove $x$ è un numero in bit che definisce la \textbf{maschera di rete}. 
+Facendo $32 - x$ avremo il numero di bit \textit{"liberi"} per la \textit{sottorete}. 
+\subsubsection*{Esempio}
+$200.23.16.0/23$ diventa $11001000.000101111.0001000\textbf{0}.\textbf{00000000}$ dove la parte in grassetto è \textbf{parte di host}, mentre il resto è \textbf{parte di sottorete}. Avendo $x=23$ faremo $32-23 = 9$, quindi avremo correttamente $9$ bit di \textbf{parte di host}. 
+
+\subsubsection{Indirizzamento}
+Convenizioni:
+\begin{itemize}
+  \item \textbf{Broadcast}: tutti i bit della \textbf{parte di host} posti a $1$. Il datagrammo viene consegnato a tutti gli host della sottorete. 
+  \item \textbf{Identificativo della rete}: Tutti i bit della \textbf{parte di host} è posta a $0$. Indirizzo della rete.
+  \item \textbf{Identificatore del router}: solitamente il primo indirizzo disponibile (dopo quelli \textbf{riservati}) è del \textit{router}.
+\end{itemize}
+
+\subsubsection{Netmask}
+Sequenza di 32 bit associato ad un indirizzo per l'individuazione del prefisso di rete e parte di host.  \\ 
+I bit che valgono $1$ indentificano la \textit{parte di rete} e quelli che valgono $0$ indentificano la \textit{parte di host}. \\  
+\includegraphics[width=\textwidth]{./img/netmask.png} 
+
+\subsubsection{Inoltro dei pacchetti: Host}
+Operazioni che fa:
+\begin{enumerate}
+  \item Verifica se il destinatario è nella stessa sottorete: \textit{AND} tra il proprio indirizzo e la propria \textit{netmask}, \textit{AND} tra l'indirizzo di destinazione e la propria \textit{netmask}, verifica se sono uguali.
+  \item Se è sulla stessa \textit{sottorete} invia direttamente all'host. Se non è nella stessa \textit{sottorete} invia al router.  
+\end{enumerate}
+
+\subsubsection{Inoltro dei pacchetti: router}
+
+\subsubsection{Come ottenere un blocco di indirizzi IP}
+Bisogna contattare il proprio \textbf{ISP} e ottenere la divisione in otto blocchi uguali di inidirizzi contigui. 
+
+\subsubsection{Come ottenere un singolo indirizzo}
+Due approcci:
+\begin{itemize}
+  \item \textbf{configurazione manuale}: si imposta manualmente l'indirizzo IP alla macchina. 
+  \item \textbf{DHCP}: Dynamic Host Configuration Protocol, assegna automaticamente un indirizzo IP una volta connesso in rete.  
+\end{itemize}
+
+\subsubsection*{DHCP}
+È una funzionalità di livello rete ma gestita da un processo a livello applicativo che utilizza delle socket UDP, porta con numero 67, mentre i client aprono la porta 68 con indirizzo IP $0.0.0.0$. \\ 
+Il client appena inserito sulla rete non ha, giustamente, indirizzo IP e non conosce l'indirizzzo IP del server DHCP, quindi il client invia un messaggio \textit{broadcast} sulla porta 67, cercando un server DHCP. \\ 
+Consente di ottenere \textbf{dinamicamente} gli indirizzi IP degli \textit{host}. Non assegna obbligatoriamente lo stesso IP all'host, varia in base a quelli che ha disponibile. \\ 
+\begin{enumerate}
+  \item \textbf{DHCP discover} da parte degli host, un messaggio broadcast a tutta la rete alla ricerca di un \textbf{server DHCP} 
+  \item \textbf{DHCP offer}: il \textit{server DHCP} offre un indirizzo IP all'host. 
+  \item \textbf{DHCP request}: l'host accetta l'indirizzo ip proposto dal \textit{server DHCP}. 
+  \item \textbf{DHCP ack}: il \textit{server DHCP} invia l'ack di conferma. 
+\end{enumerate}
