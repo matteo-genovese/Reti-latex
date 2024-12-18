@@ -118,13 +118,54 @@ Due approcci:
   \item \textbf{DHCP}: Dynamic Host Configuration Protocol, assegna automaticamente un indirizzo IP una volta connesso in rete.  
 \end{itemize}
 
-\subsubsection*{DHCP}
+\subsubsection{DHCP}
 È una funzionalità di livello rete ma gestita da un processo a livello applicativo che utilizza delle socket UDP, porta con numero 67, mentre i client aprono la porta 68 con indirizzo IP $0.0.0.0$. \\ 
-Il client appena inserito sulla rete non ha, giustamente, indirizzo IP e non conosce l'indirizzzo IP del server DHCP, quindi il client invia un messaggio \textit{broadcast} sulla porta 67, cercando un server DHCP. \\ 
-Consente di ottenere \textbf{dinamicamente} gli indirizzi IP degli \textit{host}. Non assegna obbligatoriamente lo stesso IP all'host, varia in base a quelli che ha disponibile. \\ 
+Il client appena inserito sulla rete non ha, giustamente, indirizzo IP e non conosce l'indirizzzo IP del server DHCP, quindi il client invia un messaggio \textit{broadcast} sulla porta 67, cercando un server DHCP, anche il server DHCP risponderà in \textit{broadcast}, poiché il destinatario non ha ancora un \textit{indirizzo IP}. \\ 
+Consente di ottenere \textbf{dinamicamente} gli indirizzi IP degli \textit{host}. Non assegna obbligatoriamente lo stesso IP all'host, varia in base a quelli che ha disponibile. Il \textbf{transaction ID} serve al \textit{server} per sapere con chi sta parlando e a chi assegnare l'\textit{indirizzo IP}. \\ 
 \begin{enumerate}
   \item \textbf{DHCP discover} da parte degli host, un messaggio broadcast a tutta la rete alla ricerca di un \textbf{server DHCP} 
   \item \textbf{DHCP offer}: il \textit{server DHCP} offre un indirizzo IP all'host. 
   \item \textbf{DHCP request}: l'host accetta l'indirizzo ip proposto dal \textit{server DHCP}. 
   \item \textbf{DHCP ack}: il \textit{server DHCP} invia l'ack di conferma. 
 \end{enumerate}
+
+\subsubsection{NAT}
+Consente di separare una rete specifica dalle altre, crea la \textbf{rete privata}. L'acronimo sta per: \textbf{Network address translation}. \\ 
+Il \textbf{NAT} si trova all'interno del \textit{router}. Le reti esterne vedono la rete privata come un \textbf{unico} \textit{indirizzo IP}, che sarà quello assegnato al \textit{router}. Le macchine all'interno della \textit{rete privata} avranno degli \textbf{indirizzi IP privati}, che saranno visibili sono all'interno della \textit{rete privata}. 
+Il vantaggio è di avere un unico indirizzo IP fornito dall'\textit{ISP} per la \textbf{rete pubblica}, andando a mascherare gli \textit{indirizzi IP privati} alle \textit{rete esterne}. 
+\subsubsection*{Implementazione}
+Il router NAT riceve un datagramma, genera un numero di porta d'origine per quella macchina che ha mandato il datagramma, sostituisce l'inidrizzo IP d'orgine con il proprio per la rete esterna e sostituisce il numero di porta iniziale con quello generato precedentemente. \\  
+Il router accede al datagramma, modificando nell'intestazione la porta d'origine e ricalcola la checksum a livello trasporto, poi cambia l'indirizzo IP e ricalcola la checksum a livello di rete. \\ 
+Il protocollo NAT può gestire al massimo tante connessioni quante sono le porte disponibile. 
+
+\subsection{IPv6}
+Il motivo per cui è stato progettato il protocollo \textbf{IP versione 6} è si stanno esaurendo gli indirizzi IP a 32 bit. Inoltre è stato progettato per migliorare l'infrastruttura generale e velocizzarla. 
+\subsubsection{Formato dei datagrammi}
+Il formato dei datagrammi \textbf{IPv6} ha un'intestazione a 40 byte ed è di lunghezza fissa al contrario della versione 4. Inoltre non è consentita la frammentazione, il router non potrà frammentare il datagramma. \\ 
+\begin{enumerate}
+  \item 
+    \begin{enumerate}
+      \item \textbf{ver}: versione del protocollo IP in uso. 
+      \item \textbf{pri}: priorità di flusso
+      \item \textbf{flow level}: 
+    \end{enumerate} 
+  \item 
+    \begin{enumerate}
+      \item \textbf{payload len}:
+      \item \textbf{next hdr}
+      \item \textbf{hop limit}: ttl. 
+    \end{enumerate}
+  \item \textbf{source address}:
+  \item \textbf{destination address}: 
+  \item \textbf{data}
+\end{enumerate}
+\includegraphics[width=\textwidth]{./img/datagramma_ipv6.png} \\ 
+
+Le varie novità di \textbf{IPv6} sono:
+\begin{itemize}
+  \item Elimina i campi di frammentazione
+  \item Checksum: eliminata dal livello di rete
+  \item Opzioni: il campo non è scomparso ma è nelle intestazioni successive puntate da "next hdr"
+  \item ICMPv6: nuova versione di ICMP
+\end{itemize}
+Il protocollo riesce a mascherare i datagrammi IPv6 in datagrammi IPv4 quando si passa su un hop che parla solo IPv4.
