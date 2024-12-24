@@ -3,80 +3,107 @@
 \subsection{Princìpi delle applicazioni di rete}
 
 \subsubsection{Architetture delle applicazioni di rete}
-Ci sono due tipi di archittettura: \textbf{client-server} o \textbf{P2P (peer-to-peer)}. \newline
-L'\textbf{architettura client-server} si basa su un \textit{server} che sarà sempre attivo, con un indirizzo IP statico e sarà connesso con altri server, mentre il \textit{client} è colui che comunica con il server, non succederà mai che il server proverà a contattare il client, avranno degli indirizzi IP dinamici. Costi alti per via dell'installazione e manutenzione. Nel caso in cui il server cada e non sarà più raggiungibile tutta la rete cadrà, quindi abbiamo un \textbf{singolo punto di fallimento} che è il server.\newline
-L'\textbf{architettura P2P pura} si basa sulla comunicazione tra i vari \textit{client}, non esiste un \textit{host} sempre attivo. È un'architettura scalabile ma difficile da gestire per la sicurezza (tutti gli host devono essere protetti adeguamente, se uno solo non è protetto tutta la rete è insicura) visto che manca un punto centrale di controllo. \newline
-Esiste un'architettura \textbf{Ibrida} quindi un mix di architettura client-server e P2P.
-Il server serve come mezzo di ricerca, i peer mandano una richiesta al server che la inoltra agli altri peer, mettendo poi in comunicazione i peer nella modalità P2P.
+Lo sviluppatore di applicazioni deve progettare l'\textbf{architettura dell'applicazione} (\textit{application architecture}). Ci sono due tipi di architettura: \textbf{client-server} o \textbf{P2P (peer-to-peer)}.
 
-\subsubsection{Processi comunicanti} 
+L'\textbf{architettura client-server} si basa su un \textit{server} che sarà sempre attivo, con un indirizzo IP statico e sarà connesso con altri server, mentre il \textit{client} è colui che *inizia* la comunicazione con il server. Non succederà mai che il server proverà a contattare il client, e i client avranno degli indirizzi IP dinamici. Costi alti per via dell'installazione e manutenzione. Nel caso in cui il server cada e non sarà più raggiungibile tutta la rete cadrà, quindi abbiamo un \textbf{singolo punto di fallimento} che è il server.
+
+L'\textbf{architettura P2P pura} si basa sulla comunicazione tra i vari \textit{peer}, dove ogni peer agisce sia come \textit{client} che come \textit{server}. Non esiste un \textit{host} sempre attivo. È un'architettura scalabile, poiché le risorse sono distribuite tra i vari peer, ma difficile da gestire per la sicurezza (tutti gli host devono essere protetti adeguatamente, se uno solo non è protetto tutta la rete è insicura) visto che manca un punto centrale di controllo, e ogni peer è un potenziale punto di fallimento.
+
+Esiste un'architettura \textbf{ibrida}, quindi un mix di architettura client-server e P2P. Il server serve come mezzo di ricerca, fungendo da directory o tracker. I peer mandano una richiesta al server che la inoltra agli altri peer, mettendo poi in comunicazione i peer nella modalità P2P.
+
+\subsubsection{Processi comunicanti}
+Nei sistemi operativi i programmi prendono nome di \textbf{processi comunicanti}.
 \begin{itemize}
-    \item \textbf{Processo}: programma in esecuzione su un host, più processi comunicano tramite \textbf{schemi interprocesso} e processi su host differenti comunicano tramite scambio di mesasggi.
+    \item \textbf{Processo}: programma in esecuzione su un host. Più processi sullo stesso host comunicano tramite \textbf{schemi interprocesso}, mentre processi su host differenti comunicano tramite scambio di messaggi.
     \item \textbf{Processo client}: processo che dà inizio alla comunicazione.
     \item \textbf{Processo server}: processo che attende di essere contattato.
-    \item \textbf{Socket}: Il processo comunica tramite un socket, equiparabile a una porta, mette in comunicazione il livello del processo applicativo e il livello trasporto.
-    \item \textbf{API}: Application Programming Interface, definisce come un'applicazione accede ai servizi di trasporto.
+    \item \textbf{Socket}: Il processo comunica tramite un socket, un'interfaccia che mette in comunicazione il livello del processo applicativo e il livello trasporto. È equiparabile a una porta logica.
+    \item \textbf{API}: Application Programming Interface, definisce come un'applicazione accede ai servizi di trasporto. È un'interfaccia di programmazione.
 \end{itemize}
-\begin{quote}
-    Le applicazioni con architettura P2P hanno sia processi client che server.
-\end{quote}
 
-Il progettista di rete può scegliere il protocollo di trasporto e alcuni parametri a livello di trasporto.
+Le applicazioni con architettura P2P hanno sia processi client che server. Il progettista dell'applicazione può scegliere il protocollo di trasporto e alcuni parametri a livello di trasporto.
 
-Per identificare il processo ricevemente bisogna avere due informazioni:
+Per identificare il processo ricevente bisogna avere due informazioni:
 \begin{itemize}
-  \item \textbf{Indirizzo dell'host}: spcicificati dal loro \textbf{indirizzo IP}, un numero di 32 bit che identfica univocamente l'host.
-  \item \textbf{Identificatore del processo ricevente sull'host di destinazione}: la sua \textbf{socket}, il \textbf{numero di porta di destinazione} svolge questo compito.
+  \item \textbf{Indirizzo dell'host}: specificato dal loro \textbf{indirizzo IP}, un indirizzo logico di 32 bit che identifica univocamente l'host.
+  \item \textbf{Identificatore del processo ricevente sull'host di destinazione}: la sua \textbf{socket}, il \textbf{numero di porta di destinazione} svolge questo compito, identificando un processo specifico sull'host.
 \end{itemize}
+
+\includegraphics[width=\textwidth, height=6cm, keepaspectratio]{img/processi-socket.png}
 
 \subsubsection{Servizi di trasporto disponibili per le applicazioni}
+L'applicazione lato mittente trasmette i messaggi tramite la socket. Lato ricevente, il protocollo a livello di trasporto deve consegnare i messaggi alla socket del processo ricevente, fornendo una comunicazione *logica* tra le applicazioni.
 
-\subsubsection{Servizi di trasporto offerti da Internet} 
-Ci sono a disposizione due protocolli di trasporto per le applicazioni di internet:
+Esistono vari servizi offerti dai protocolli a livello di trasporto, tra cui: trasferimento dati affidabile, throughput, temporizzazione e sicurezza.
+
+\subsubsection*{Trasferimento dati affidabile}
+Molte applicazioni hanno la necessità di ricevere ogni pacchetto che gli viene mandato, poiché la perdita di pacchetto potrebbe causargli dei danni, per esempio economici. Hanno bisogno di un protocollo con un servizio di consegna garantita dei dati, cioè il \textbf{trasferimento affidabile dei dati} (\textit{reliable data transfer}), che si ottiene tramite meccanismi come acknowledgment e ritrasmissione.
+
+Se il protocollo a livello di trasporto fornisce questo servizio, il processo mittente manderà i dati sapendo che arriveranno tutti a destinazione.
+
+Alcune applicazioni, per esempio quelle multimediali, accettano la possibilità di perdita di dati poiché preferiscono la maggiore velocità di trasmissione, si dicono \textbf{applicazioni che tollerano le perdite} (\textit{loss-tolerant applications}), ovvero applicazioni che possono tollerare una certa perdita di dati senza impatti significativi sulla loro funzionalità.
+
+\subsubsection*{Throughput}
+Garantire il servizio di \textbf{throughput} significa garantire una certa quantità di banda per il collegamento, ovvero una certa *velocità* con cui i dati vengono trasferiti. Queste applicazioni vengono chiamate \textbf{applicazioni sensibili alla banda} (\textit{bandwidth-sensible applications}), ovvero applicazioni che richiedono un throughput minimo *garantito*.
+
+Esistono delle applicazioni che non hanno bisogno di una quantità di throughput garantita, ma sono elastiche, da qui il nome \textbf{applicazioni elastiche} (\textit{elastic applications}), ovvero applicazioni che si adattano al throughput disponibile in quell'istante.
+
+\subsubsection*{Temporizzazione}
+Per le applicazioni in tempo reale è necessaria una comunicazione quasi istantanea, hanno bisogno della garanzia che la trasmissione avvenga sotto un determinato tempo. Queste garanzie di temporizzazione sono spesso difficili da ottenere nella pratica.
+
+\subsubsection*{Sicurezza}
+Infine, un protocollo a livello di trasporto può garantire la sicurezza dei dati mediante, per esempio, la crittografia. I servizi di sicurezza possono includere confidenzialità, integrità e autenticazione.
+
+\subsubsection{Servizi di trasporto offerti da Internet}
+Esistono due protocolli di trasporto per le applicazioni di internet:
 \begin{itemize}
-  \item \textbf{TCP}: prevede una connessione e un trasporto affidabile dei dati.\newline
-    \textit{Servizio orientato alla connessione (connection-oriented service)}: fa in modo che client e server si scambino informazioni di controllo a livello di trasporto prima che i messaggi a livello di appllicazione comincino a fluire, questa procedura è denominata \textbf{handshaking}, pre-allerta client e server per lo scambio di messaggi.\newline
-    Dopo la fase di \textit{handshaking} si dice che esiste una \textbf{connessione TCP} tra le socket di client e host, una connessione di tipo \textit{full-duplex} (i processi possono scambiare messaggi contemporaneamente). 
-    \textit{Servizio di trasferimento affidabile (reliable data transfer service)}: il protocollo TCP garantisce ai processi il flusso di dati senza errori. \newline
-    TCP evita la congestione della rete, strozzando il flusso quando è eccessivo.
-  \item \textbf{UDP}: protocollo minimale, è "senza connessione" (non ha bisogno di \textit{handshaking}), ciò non garantisce l'affidabile della connessione. Non ha un meccanismo di gestione della congestione, manda il flusso di dati al livello di rete a qualsiasi velocità. 
+  \item \textbf{TCP}: prevede una connessione e un trasporto affidabile dei dati.
+    \textbf{Servizio orientato alla connessione} \textit{(connection-oriented service)}: fa in modo che client e server si scambino informazioni di controllo a livello di trasporto prima che i messaggi a livello di applicazione comincino a fluire. Questa procedura, denominata \textbf{handshaking}, stabilisce uno *stato* sia sul client che sul server, pre-allertandoli per lo scambio di messaggi.
+    Dopo la fase di \textit{handshaking} si dice che esiste una \textbf{connessione TCP} tra le socket di client e host, una connessione di tipo \textit{full-duplex} (i processi possono scambiare messaggi contemporaneamente in entrambe le direzioni).
+    \textbf{Servizio di trasferimento affidabile} \textit{(reliable data transfer service)}: il protocollo TCP garantisce ai processi il flusso di dati senza errori, utilizzando meccanismi come acknowledgment, ritrasmissione e numeri di sequenza.
+    TCP evita la congestione della rete, *attivamente* strozzando il flusso quando è eccessivo.
+  \item \textbf{UDP}: protocollo minimale, è "senza connessione" (non ha bisogno di \textit{handshaking}), ciò non garantisce l'affidabilità della connessione. UDP non garantisce la consegna, l'ordine o l'assenza di duplicati. Non ha un meccanismo di gestione della congestione, manda il flusso di dati al livello di rete a qualsiasi velocità, lasciando la gestione della congestione all'applicazione.
 \end{itemize}
 
-
 \subsubsection{Protocolli a livello di applicazione}
-\subsubsection{Applicazioni di rete trattate in questo libro}
+I protocolli a livello di applicazione devono stabilire:
+\begin{itemize}
+\item i tipi di messaggi scambiati (richiesta o risposta), definendo lo \textbf{scopo} del messaggio.
+\item la sintassi dei vari tipi di messaggio, definendo il \textbf{formato} del messaggio.
+\item la semantica dei campi, definendo il \textbf{significato} dei campi all'interno del messaggio.
+\item le regole per regolare quando e come un processo invia e risponde ai messaggi, definendo la \textbf{sequenza} dei messaggi e le \textbf{azioni} intraprese dai processi comunicanti.
+\end{itemize}
 
 \subsection{Web e HTTP}
-Il \textbf{Web} è \textit{on demand}, ciò significa che si può avere quello che si vuole quando si vuole.
+Il \textbf{Web} è \textit{on demand}, ciò significa che si può avere quello che si vuole quando si vuole, accedendo a risorse tramite \textbf{URL} \textit{(Uniform Resource Locator)}.
 
 \subsubsection{Panoramica di HTTP}
-\textbf{HTTP (\textit{HyperText Transfer Protocol})} è un protocollo a livello di applicazione che utilizza \textbf{TCP} come protocollo di trasporto, implementato a due programmi, client e server.
-\textbf{Pagina web}: documento costituito da oggetti, un \textbf{oggetto} è un file indirizzabile tramite un \textbf{URL}.
-In un \textit{URL} ci sono due componenti: il nome dell'host e il percorso dell'oggetto.
-I \textbf{browser} implementano il protocollo \textit{HTTP} lato client.
-I \textbf{server web} implementano il protocollo \textit{HTTP} lato server (Apache è un esempio), sarà sempre attivo con un indirizzo IP statico.
-\textit{HTTP} è un protocollo \textbf{senza memoria di stato} (stateless protocol).
+\textbf{HTTP (\textit{HyperText Transfer Protocol})} è un protocollo a livello di applicazione \textit{request-response} che utilizza \textbf{TCP} come protocollo di trasporto, implementato a due programmi, client e server.
+\textbf{Pagina web}: documento costituito da \textit{più} oggetti, un \textbf{oggetto} è un file indirizzabile tramite un \textbf{URL}.
+In un \textit{URL} ci sono tre componenti: il protocollo (es. `http://`), il nome dell'host e il percorso dell'oggetto.
+I \textbf{browser} implementano il protocollo \textit{HTTP} lato client, \textit{richiedendo} oggetti.
+I \textbf{server web} implementano il protocollo \textit{HTTP} lato server (Apache è un esempio), \textit{fornendo} oggetti e saranno sempre attivi con un indirizzo IP statico.
+\textit{HTTP} è un protocollo \textbf{senza memoria di stato} (\textit{stateless protocol}), ovvero i server HTTP non mantengono alcuna informazione sulle richieste passate dei client.
 
 \subsubsection{Connesioni persistenti e non persistenti}
 Si possono creare due tipi di connessioni:
 \begin{itemize}
-  \item \textbf{non persistenti}: ogni coppia richiesta e risposta deve essere inviata su una connessione TCP \textit{separata}, deve essere unica per ogni coppia.
-  \item \textbf{persistenti}: tutte le comunicazioni sono mandate sulla stessa connessione TCP (scelta di default per HTTP).
+  \item \textbf{non persistenti}: ogni coppia richiesta e risposta deve essere inviata su una connessione TCP \textit{separata}. C'è un overhead nell'aprire una nuova connessione TCP per ogni coppia richiesta-risposta.
+  \item \textbf{persistenti}: tutte le comunicazioni sono mandate sulla stessa connessione TCP (scelta di default per HTTP), riutilizzando la stessa connessione TCP e riducendo l'overhead.
 \end{itemize}
 
 \subsubsection*{HTTP con connessioni non persistenti}
 Nelle \textit{connessioni non persistenti TCP} ogni connessione viene chiusa dopo l'invio dell'oggetto da parte del server, quindi ogni connessione trasporterà un solo messaggio di richiesta e solo uno di risposta.
-Esistono browser che possono aprire più connessioni TCP parallelamente per velocizzare. \newline
-\textbf{Round-trip time (RTT)}: tempo impiegato da un pacchetto per viaggiare dal client al server e tornare al client. Include i ritardi di propagazione, di accodamento nei router e nei commutatori intermedi e di elaborazione del pacchetto.
+Esistono browser che possono aprire più connessioni TCP parallelamente per velocizzare.
+\textbf{Round-trip time (RTT)}: tempo impiegato da un pacchetto per viaggiare dal client al server e tornare al client. È una \textit{misura} della latenza di rete. Include i ritardi di propagazione, di accodamento nei router e nei commutatori intermedi e di elaborazione del pacchetto. \\ 
 \includegraphics[width=\textwidth]{./img/rtt.png}
-Quando un utente clicca su un collegamento ipertestuale il browser inizializza una connessione TCP con il web server, iniziando così un \textbf{handshake a tre vie} (three-way handshake): il client invia un piccolo segmento TCP al server e il server manda una conferma sempre con un piccolo segmento TCP, il cliente manda una conferma di ritorno al server.
-Con queste prime due operazioni di handshake a tre vie calcoliamo il \textit{RTT}.\newline
-Il client ora invia un messaggio di richiesta HTTP insieme alla conferma di avvenuta ricezione (\textit{acknowledgement - ACK}), a messaggio ricevuto dal server il server procede a inviare il file al client. La richiesta-risposta consuma un altro \textit{RTT}.
-Il tempo di risposta totale sarà di 2 RTT più tempo di trasmissione del file dal server al client.
+Quando un utente clicca su un collegamento ipertestuale il browser inizializza una connessione TCP con il web server, iniziando così un \textbf{handshake a tre vie} (three-way handshake): il client invia un piccolo segmento TCP al server (SYN), il server manda una conferma sempre con un piccolo segmento TCP (SYN-ACK), e il cliente manda una conferma di ritorno al server (ACK). Questo handshake serve a stabilire la connessione TCP.
+Con queste prime due operazioni di handshake a tre vie calcoliamo il \textit{RTT}.
+Il client ora invia un messaggio di richiesta HTTP insieme alla conferma di avvenuta ricezione (\textit{acknowledgement - ACK}), a messaggio ricevuto dal server il server procede a inviare il file al client. Il tempo di risposta totale sarà di 2 RTT (un RTT per l'handshake TCP e un RTT per la richiesta-risposta HTTP) più il tempo di trasmissione del file dal server al client.
 
 \subsubsection*{HTTP con connessioni persistenti}
-Nelle connessioni persistenti il server lascia aperta la connessione dopo la prima coppia di richiesta-risposta col client, tutte le altre coppie verranno trasmesse sulla stessa connessione.
-Una delle caratteristiche di queste connessioni è il \textit{pipelining}, la capacità di poter effettuare delle richieste senza aspettare la risposta delle richieste in corso.
+Nelle connessioni persistenti il server lascia aperta la connessione dopo la prima coppia di richiesta-risposta col client, tutte le altre coppie verranno trasmesse sulla stessa connessione, riutilizzando la stessa connessione TCP e riducendo l'overhead.
+Una delle caratteristiche di queste connessioni è il \textit{pipelining}, la capacità di poter effettuare \textit{più} richieste senza aspettare la risposta delle richieste in corso.
 La connessione si chiuderà dopo un lasso di tempo configurato in cui la connessione è stata inattiva.
 
 \subsubsection{Formato dei messaggi HTTP}
