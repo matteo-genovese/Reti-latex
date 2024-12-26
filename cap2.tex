@@ -78,8 +78,8 @@ I protocolli a livello di applicazione devono stabilire:
 Il \textbf{Web} è \textit{on demand}, ciò significa che si può avere quello che si vuole quando si vuole, accedendo a risorse tramite \textbf{URL} \textit{(Uniform Resource Locator)}.
 
 \subsubsection{Panoramica di HTTP}
-\textbf{HTTP (\textit{HyperText Transfer Protocol})} è un protocollo a livello di applicazione \textit{request-response} che utilizza \textbf{TCP} come protocollo di trasporto, implementato a due programmi, client e server.
-\textbf{Pagina web}: documento costituito da \textit{più} oggetti, un \textbf{oggetto} è un file indirizzabile tramite un \textbf{URL}.
+\textbf{HTTP} (\textit{HyperText Transfer Protocol}) è un protocollo a livello di applicazione \textit{request-response} che utilizza \textbf{TCP} come protocollo di trasporto, implementato a due programmi, client e server.
+Una \textbf{pagina web} è un documento costituito da \textit{più} oggetti, un \textbf{oggetto} è un file indirizzabile tramite un \textbf{URL}.
 In un \textit{URL} ci sono tre componenti: il protocollo (es. `http://`), il nome dell'host e il percorso dell'oggetto.
 I \textbf{browser} implementano il protocollo \textit{HTTP} lato client, \textit{richiedendo} oggetti.
 I \textbf{server web} implementano il protocollo \textit{HTTP} lato server (Apache è un esempio), \textit{fornendo} oggetti e saranno sempre attivi con un indirizzo IP statico.
@@ -95,9 +95,9 @@ Si possono creare due tipi di connessioni:
 \subsubsection*{HTTP con connessioni non persistenti}
 Nelle \textit{connessioni non persistenti TCP} ogni connessione viene chiusa dopo l'invio dell'oggetto da parte del server, quindi ogni connessione trasporterà un solo messaggio di richiesta e solo uno di risposta.
 Esistono browser che possono aprire più connessioni TCP parallelamente per velocizzare.
-\textbf{Round-trip time (RTT)}: tempo impiegato da un pacchetto per viaggiare dal client al server e tornare al client. È una \textit{misura} della latenza di rete. Include i ritardi di propagazione, di accodamento nei router e nei commutatori intermedi e di elaborazione del pacchetto. \\ 
+Il \textbf{round-trip time (RTT)} è il tempo impiegato da un pacchetto per viaggiare dal client al server e tornare al client. È una \textit{misura} della latenza di rete. Include i ritardi di propagazione, di accodamento nei router e nei commutatori intermedi e di elaborazione del pacchetto. \\ 
 \includegraphics[width=\textwidth]{./img/rtt.png}
-Quando un utente clicca su un collegamento ipertestuale il browser inizializza una connessione TCP con il web server, iniziando così un \textbf{handshake a tre vie} (three-way handshake): il client invia un piccolo segmento TCP al server (SYN), il server manda una conferma sempre con un piccolo segmento TCP (SYN-ACK), e il cliente manda una conferma di ritorno al server (ACK). Questo handshake serve a stabilire la connessione TCP.
+Quando un utente clicca su un collegamento ipertestuale il browser inizializza una connessione TCP con il web server, iniziando così un \textbf{handshake a tre vie} (three-way handshake): il client invia un piccolo segmento TCP al server (SYN), il server manda una conferma sempre con un piccolo segmento TCP (SYN-ACK), e il client manda una conferma di ritorno al server (ACK). Questo handshake serve a stabilire la connessione TCP.
 Con queste prime due operazioni di handshake a tre vie calcoliamo il \textit{RTT}.
 Il client ora invia un messaggio di richiesta HTTP insieme alla conferma di avvenuta ricezione (\textit{acknowledgement - ACK}), a messaggio ricevuto dal server il server procede a inviare il file al client. Il tempo di risposta totale sarà di 2 RTT (un RTT per l'handshake TCP e un RTT per la richiesta-risposta HTTP) più il tempo di trasmissione del file dal server al client.
 
@@ -107,7 +107,7 @@ Una delle caratteristiche di queste connessioni è il \textit{pipelining}, la ca
 La connessione si chiuderà dopo un lasso di tempo configurato in cui la connessione è stata inattiva.
 
 \subsubsection{Formato dei messaggi HTTP}
-Esistono due formati di messaggi HTTP per richiesta e risposta.
+Esistono due formati di messaggi HTTP, basati su testo, per richiesta e risposta.
 
 \subsubsection*{Messaggio di richiesta HTTP}
 \begin{quote}
@@ -118,15 +118,22 @@ Esistono due formati di messaggi HTTP per richiesta e risposta.
   Accept-language: fr
 \end{quote}
 
-Questa è una richiesta HTTP, può avere un numero indefinito di righe, la riga fondamentale è la prima che è la \textbf{riga di richiesta}, le succesive sono \textbf{righe di intestazione}.
-La riga di richiesta ha 3 campi: metodo (GET, POST, DATA, PUT, DELETE), l'URL e la versione di HTTP. \newline
-\textbf{GET} è il metodo più utilizzato nel web, si usa per richiedere un oggetto tramite l'URL.
-Notiamo la riga "Connection: close", con questa riga il browser comunica al server che non si deve occupare di connessioni eprsistenti, deve chiudere la connessione dopo aver iniviato l'oggetto.\newline
-Alla fine del richiesta troviamo un \textit{corpo} del messaggio, vuoto in caso di metodo GET, utilizzato in caso di metodo POST. \newline
-Il metodo \textbf{POST} viene utilizzato per mandare form compilati dell'utente al server, si può utilizzare anche il metodo GET per questo scopo ma includendo questi dati nell'URL della pagina richiesta. \newline
-Il metodo \textbf{HEAD} viene utilizzato dagli sviluppatori, è come il metodo \textit{GET} ma si riceve solo la risposta HTTP, senza ricevere l'oggetto. \newline
-Il metodo \textbf{PUT} viene utilizzato per caricare dal client dei file sul server. \newline
-Il metodo \textbf{DELETE} viene utilizzato per cancellare file sul server (spesso disabilitato per ragioni di sicurezza insieme al metodo PUT). \newline
+Questa è una richiesta HTTP, può avere un numero indefinito di righe, la riga fondamentale è la prima che è la \textbf{riga di richiesta}, le successive sono \textbf{righe di intestazione}.
+
+La riga di richiesta ha 3 campi: metodo (GET, POST, DATA, PUT, DELETE), che specifica l'\textit{azione} da eseguire sulla risorsa, l'URL e la versione di HTTP.
+\textbf{GET} è il metodo più utilizzato nel web, si usa per \textit{recuperare} un oggetto tramite l'URL.
+
+Notiamo la riga "Connection: close", con questa riga il browser comunica al server che non si deve occupare di connessioni persistenti, deve chiudere la connessione dopo aver inviato l'oggetto. Questo header è tipico delle connessioni non persistenti.
+
+Alla fine della richiesta troviamo un \textit{corpo} del messaggio, vuoto in caso di metodo GET, utilizzato in caso di metodo POST per inviare dati al server (es. dati di un form).
+
+Il metodo \textbf{POST} viene utilizzato per \textit{inviare} form compilati dall'utente al server, si può utilizzare anche il metodo GET per questo scopo ma includendo questi dati nell'URL della pagina richiesta.
+
+Il metodo \textbf{HEAD} viene utilizzato dagli sviluppatori, è come il metodo \textit{GET} ma si riceve solo la risposta HTTP, senza ricevere l'oggetto, quindi si recuperano i \textit{metadata} di una risorsa.
+
+Il metodo \textbf{PUT} viene utilizzato per caricare dal client dei file sul server.
+
+Il metodo \textbf{DELETE} viene utilizzato per cancellare file sul server (spesso disabilitato per ragioni di sicurezza insieme al metodo PUT).
 
 \includegraphics[width=\textwidth]{./img/richiestaHTTP.png}
 
@@ -142,7 +149,8 @@ Il metodo \textbf{DELETE} viene utilizzato per cancellare file sul server (spess
   (data data data data ....)
 \end{quote}
 
-Abbiamo: una \textbf{riga di stato} iniziale (contenente 3 campi, versione di protocollo, codice di stato HTTP e il corrispettivo messaggio), sei \textbf{righe di intestazione} e il \textbf{corpo dell'oggetto} finale (fulcro del messaggio, contiene l'oggetto richiesto). \newline
+Abbiamo: una \textbf{riga di stato} iniziale (contenente 3 campi, versione di protocollo, codice di stato HTTP che indica l'\textit{esito} della richiesta e il corrispettivo messaggio), sei \textbf{righe di intestazione} e il \textbf{corpo dell'oggetto} finale (fulcro del messaggio, contiene l'oggetto richiesto).
+
 Esistono vari codici di stato, questi i più comuni:
 \begin{itemize}
   \item \textbf{200 - OK}: la richiesta ha avuto successo e in risposta si invia l’informazione.
@@ -155,108 +163,128 @@ Esistono vari codici di stato, questi i più comuni:
 \includegraphics[width=\textwidth]{./img/rispostahttp.png}
 
 \subsubsection{Cookie}
-HTTP è un protocollo \textit{stateless}, un elemento utile per i webserver sono i \textbf{cookie}, un identificativo per l'utente che mantiene le informazioni sul server, per esempio l'\textit{autenticazione}.
+HTTP è un protocollo \textit{stateless}, un elemento utile per i webserver sono i \textbf{cookie}, un identificativo per l'utente che mantiene le informazioni sul server, per esempio l'\textit{autenticazione}, e che permette di \textit{mantenere lo stato} tra più richieste HTTP. 
+
 È formato da 4 componenti, tra cui:
 \begin{itemize}
-  \item Riga di intestazione nel messaggio di risposta HTTP (Set-cookie: numero identificativo)
-  \item Riga di intestazione nel messaggio di richeista HTTP (Cookie: numero identificativo)
-  \item File cookie, mantenuto sul sistema terminale dell'utente e gestito dal browser del client
-  \item Database sul webserver che mantiene l'identificativo dei cookie
+  \item Riga di intestazione nel messaggio di risposta HTTP (\textbf{Set-cookie}: numero identificativo), usata per \textit{impostare} il cookie.
+  \item Riga di intestazione nel messaggio di richiesta HTTP (\textbf{Cookie}: numero identificativo), usata per \textit{inviare} il cookie al server.
+  \item File cookie, mantenuto \textit{localmente} sul sistema terminale dell'utente e gestito dal browser del client.
+  \item Database sul webserver che mantiene l'identificativo dei cookie, usato per \textit{associare} i cookie con i dati dell'utente.
 \end{itemize}
 
-\begin{quote}
-  I cookie possono anche essere usati per creare un livello di sessione utente al di sopra di HTTP che è privo di stato.
-\end{quote}
+I cookie possono anche essere usati per creare un livello di sessione utente al di sopra di HTTP che è privo di stato, permettendo di mantenere informazioni sull'utente durante la sua navigazione.
 
 \subsubsection{Web caching (proxy server)}
 
+Una \textbf{web cache}, cioè un \textbf{proxy server}, agisce come \textit{intermediario} e gestisce le richieste HTTP al posto del web server effettivo. All'interno del proxy server troviamo delle \textit{copie} dei siti già richiesti da altri web server, si trovano all'interno della sua cache.
+
+Il meccanismo di funzionamento è:
+\begin{enumerate}
+  \item Il browser stabilisce una connessione TCP con il proxy server e invia una richiesta HTTP per l'oggetto specificato.
+  \item Abbiamo due casi possibili ora:
+    \begin{enumerate}
+    \item Il proxy server ha l'oggetto richiesto nella propria cache, inoltra direttamente l'oggetto al browser che ne ha fatto richiesta.
+    \item Il proxy server non ha l'oggetto richiesto, apre una connessione TCP verso il server in cui risiede l'oggetto richiesto, effettua una richiesta HTTP al server e poi inoltra l'oggetto al browser.
+    \end{enumerate}
+  \item Il proxy riceve l'oggetto e salva la copia sulla sua cache.
+\end{enumerate}
+
+Notiamo che il proxy server è contemporaneamente sia \textit{client} (quando richiede oggetti al server di origine) che \textit{server} (quando fornisce oggetti al client). Il suo utilizzo riduce notevolmente i tempi di caricamento dei siti, il traffico di rete e il carico del server.
+
+Uno dei problemi che si possono venire a creare è che l'oggetto richiesto al proxy server potrebbe non essere aggiornato, portando a visualizzare informazioni obsolete. Per ovviare a questo problema è stato implementato il \textbf{GET condizionale} (\textit{conditional GET}), è come una richiesta GET HTTP tradizionale, in più si aggiunge una riga di intestazione \texttt{if-modified-since:}, che include un \textit{timestamp}. Se il server riceve una richiesta GET condizionale, confronta il timestamp nell'header `if-modified-since` con il timestamp dell'ultima modifica dell'oggetto. Se l'oggetto non è stato modificato dopo il timestamp specificato, il server risponde con un codice di stato \textbf{304 Not Modified} senza inviare l'oggetto. Se l'oggetto è stato modificato, il server risponde con un codice di stato \textbf{200 OK} e invia l'oggetto aggiornato.
+
 \subsection{Posta elettronica}
-Mezzo di comunicazione asincrono, tre componenti principali: gli \textbf{user agent} (o agenti utente), i \textbf{mail server} (server di posta) e il \textbf{protocollo SMTP (Simple Mail Transfer Protocol)}. 
-L'\textit{user agent} invia il messaggio al proprio \textit{mail server} (il distributore del servizio) che invierà la mail al \textit{mail server} del destinatario.
+La posta elettronica è un mezzo di comunicazione asincrono, ciò significa che non richiede che mittente e destinatario siano online contemporaneamente, tre componenti principali: gli \textbf{user agent} (o agenti utente), i \textbf{mail server} (server di posta) e il \textbf{protocollo SMTP (Simple Mail Transfer Protocol)}.
+L'\textit{user agent} (un'applicazione usata per comporre, inviare e ricevere email) invia il messaggio al proprio \textit{mail server} (il distributore del servizio che memorizza e inoltra i messaggi) che invierà la mail al \textit{mail server} del destinatario.
 Componenti della posta elettronica:
 \begin{itemize}
-  \item \textbf{casella di posta}: contenitore dei messaggi in arrivo, collocata in un \textit{mail server}.
-  \item \textbf{Coda di messaggi}: mail che devono arrivare al destinatario.
-  \item \textbf{Protocollo SMTP} (Simple Mail Transfer Protocol): regola la comunicazione tra i \textit{mail server} e tra gli \textit{user agent} e i proprio \textit{mail server}. Principale protocollo a livello di applicazione per la posta elettronica, utilizza \textit{TCP}.
-  \begin{quote}
-    Quando un server invia posta a un altro, agisce come client SMTP; quando invece la riceve, funziona come server SMTP.
-  \end{quote}
+  \item \textbf{casella di posta}: contenitore dei messaggi in arrivo, collocata in un \textit{mail server}. Ogni utente ha una casella di posta \textit{unica} su un mail server.
+  \item \textbf{Coda di messaggi}: mail che devono arrivare al destinatario, memorizzate \textit{temporaneamente} in attesa di consegna.
+  \item \textbf{Protocollo SMTP} (Simple Mail Transfer Protocol): regola la comunicazione tra i \textit{mail server} e tra gli \textit{user agent} e i proprio \textit{mail server}, usato per \textit{trasferire} i messaggi. Principale protocollo a livello di applicazione per la posta elettronica, utilizza \textit{TCP}.
+    Quando un server invia posta a un altro, agisce come client SMTP; quando invece la riceve, funziona come server SMTP. Il protocollo SMTP regola la comunicazione tra i \textit{mail server} e tra gli \textit{user agent} e i proprio \textit{mail server}.
 \end{itemize}
 
 \subsubsection{SMTP}
-Utilizzo di TCP, utilizza la \textbf{porta 25}, è un \textit{protocollo con stato}, codificato in ASCII-7bit. \newline
+Il protocollo \textbf{SMTP} utilizza TCP, la porta standard è la $25$, è un \textit{protocollo con stato}, ciò significa che mantiene lo stato \textit{tra più comandi} all'interno della stessa connessione, codificato in ASCII-7bit per i \textit{messaggi di controllo}, mentre il corpo del messaggio può usare altre codifiche.
+
 Si prevedono 3 fasi diverse:
 \begin{itemize}
-  \item Prima fase: handshake
-  \item Seconda fase: scambio effettivo dei messaggi
-  \item Terza fase: chiusura della connessione 
+  \item Prima fase: handshake, che include lo scambio di comandi specifici come \texttt{HELO} o \texttt{EHLO}.
+  \item Seconda fase: scambio effettivo dei messaggi, che include comandi come \texttt{MAIL FROM} (per specificare il mittente), \texttt{RCPT TO} (per specificare il destinatario) e \texttt{DATA} (per inviare il corpo del messaggio).
+  \item Terza fase: chiusura della connessione, che include il comando \texttt{QUIT}.
 \end{itemize}
 
 \subsubsection*{Scenario di funzionamento del protocollo}
 \begin{enumerate}
-  \item L'user agent mittente compone l'indirizzo mail del destinatario
-  \item L'user agent invia il messaggio al mail server del mittente
-  \item Il mail server mittente apre una connessione TCP con il mail server del destinatario sulla porta 25
-  \item Il client SMTP (mail server mittente) invia il messaggio tramite la connessione TCP e lo colloca nella coda dei messaggi
-  \item Il mail server del destinatorio invia il messaggio nella mail box
-  \item L'user agent destinatario può ora leggere il messaggio
+  \item L'user agent mittente compone l'indirizzo mail del destinatario.
+  \item L'user agent invia il messaggio al mail server del mittente.
+  \item Il mail server mittente apre una connessione TCP con il mail server del destinatario sulla porta 25, agendo come client SMTP.
+  \item Il client SMTP (mail server mittente) invia il messaggio tramite la connessione TCP e lo colloca nella coda dei messaggi.
+  \item Il mail server del destinatario, agendo come server SMTP, riceve il messaggio e lo invia nella mail box.
+  \item L'user agent destinatario può ora leggere il messaggio.
 \end{enumerate}
 
 \includegraphics[width=\textwidth]{./img/smtp.png}
 
-Si utilizzano dei mail server poiché nel caso in cui le mail non possono essere consegnate in un preciso momento o ci sono errori, il mail server può fare vari tentativi (in base alla configurazione fatta) per consegnare il messaggio.
+Si utilizzano dei mail server poiché nel caso in cui le mail non possono essere consegnate in un preciso momento o ci sono errori, il mail server può fare vari tentativi (in base alla configurazione fatta) per consegnare il messaggio, utilizzando una \textit{coda} per memorizzare i messaggi e ritentare la consegna in un secondo momento.
 
-continuo su tablet, pc scarico. inserire schema + appunti.
-
-\subsubsection{Protocolli di accesso alla posta}
+Oltre ai comandi di controllo, SMTP definisce anche il formato del messaggio email, che include header (es. From, To, Subject) e un corpo. La fine del messaggio email è indicata da un punto su una riga vuota. Per recuperare le email dalla casella di posta, gli user agent utilizzano protocolli come \textbf{POP3} (Post Office Protocol version 3), che permette di scaricare le email dal server e, opzionalmente, di cancellarle dal server (download-and-delete) o di mantenerle (download-and-keep), o \textbf{IMAP} (Internet Message Access Protocol), che permette di gestire le mailbox direttamente sul server, consentendo di visualizzare le email, creare cartelle, spostare messaggi e altre operazioni senza dover scaricare tutte le email sul dispositivo locale.
 
 \subsection{DNS}
-Il \textbf{DNS} è un protocollo, ma in realtà è un sistema, \textit{Domain Name System}.
-Il web è identificato da un nome simbolico, il nome dell'host, ma il modo univoco per identificare il server è il suo indirizzo ip (32 Byte).
-È un sistema distribuito, esistono vari server che conoscono l'associazione fra nome host e indirizzo IP. \newline
+Il \textbf{DNS} è un protocollo, ma in realtà è un sistema gerarchico e distribuito, \textit{Domain Name System}.
+Il web è identificato da un nome simbolico, il nome dell'host, che è \textit{leggibile dagli umani}, ma il modo univoco per identificare il server è il suo indirizzo IP (32 bit), che è \textit{leggibile dalle macchine}.
+È un sistema distribuito, esistono vari server, organizzati in modo \textit{gerarchico}, che conoscono l'associazione fra nome host e indirizzo IP.
 È un protocollo a livello di applicazione, i vari servizi che offre sono:
 \begin{itemize}
-  \item Traduzione degli hostname in indirizzi IP.
-  \item Host aliasing, più nomi per lo stesso indirizzo ip (stesso host). Esiste un \textbf{nome canonico} della macchina che la identifica, esistono anche degli \textbf{alias} che sono altri nomi per la stessa macchina.
-  \item Possibilità di gestire la posta elettronica in server diversi ma con lo stesso hostname (esempio mail@unipa.it e unipa.it).
-  \item Possibilità di distribuire il carico, più macchine possono gestire lo stesso server, ci saranno pìù server (e più indirizzi IP) per un unico hostname.
+  \item Traduzione degli hostname in indirizzi IP, che è la funzione \textit{principale} del DNS.
+  \item Host aliasing, più nomi per lo stesso indirizzo IP (stesso host). Esiste un \textbf{nome canonico} della macchina che la identifica, esistono anche degli \textbf{alias} che sono altri nomi per la stessa macchina, usati per \textit{convenienza} e \textit{flessibilità}.
+  \item Possibilità di gestire la posta elettronica in server diversi ma con lo stesso hostname (esempio mail@unipa.it e unipa.it), usando i record DNS per \textit{mappare} i nomi di dominio ai mail server.
+  \item Possibilità di distribuire il carico, più macchine possono gestire lo stesso server, ci saranno più server (e più indirizzi IP) per un unico hostname, e DNS può distribuire il traffico su \textit{più server}.
 \end{itemize}
 
-Non dobbiamo centralizzare il DNS in un unico server per evitare un \textit{single point of secure}, non è scalabile, scarsa manutenzione e difficoltà nel gestire il volume di traffico.
-
 \subsubsection{Gestione gerarchica DNS}
-Abbaimo un sistema gerarchico, più in alto abbiamo i \textbf{server radice}, sotto i \textbf{server TLD (top-level domain)} e infine i server \textbf{autoritativi (o di competenza)}. \newline
-I \textit{server autoritativi} sono i server che posseggono le traduzioni, sono di società che posseggono host Internet, devono fornire i record DNS di pubblico dominio che mappano i nomi di tali host in indirizzi IP. \newline
-I \textit{server TLD} sono responsabili dei domini ad alto livello (.com, .co.uk, .it\dots), vengono gestiti da nazioni o da aziende. \newline
-I \textit{server radice} responsabile di tutto. Sono 13 nel mondo (numero limitato), verrà contattato da un \textbf{DNS locale} \newline
-Il client contatterà sempre il server radice, che darà indicazioni su dove trovare i server TLD interessati che diranno al client qual'è il server autoritativo responsabile per l'hostname scelto.
+Abbiamo un sistema gerarchico, progettato per \textit{distribuire il carico} e \textit{migliorare la scalabilità}, più in alto abbiamo i \textbf{server radice}, sotto i \textbf{server TLD (top-level domain)} e infine i server \textbf{autoritativi (o di competenza)}.
+
+I \textit{server autoritativi} sono i server che posseggono le traduzioni, sono di società che posseggono host Internet, devono fornire i record DNS di pubblico dominio che mappano i nomi di tali host in indirizzi IP. Sono la \textit{fonte finale} dei record DNS per un dominio specifico.
+
+I \textit{server TLD} sono responsabili dei domini ad alto livello (.com, .co.uk, .it\dots), vengono gestiti da nazioni o da aziende e sono responsabili di \textit{delegare l'autorità} ai server autoritativi.
+
+I \textit{server radice} sono il vertice della gerarchia e sono \textit{essenziali} per il funzionamento del DNS. Sono 13 nel mondo (numero limitato), e verranno contattati da un \textbf{DNS locale}.
+
+Il client contatterà sempre il server radice, che darà indicazioni su dove trovare i server TLD interessati che diranno al client qual'è il server autoritativo responsabile per l'hostname scelto. In realtà, il client contatta un \textbf{DNS locale} (o \textit{ricorsivo}) che poi effettua le query iterative o ricorsive.
 
 \subsubsection{DNS locale}
-Una macchina fuori la gerarchia, che si occuperà di fare da client per le comunicazioni da il client reale e l'host radice, funzionamento di intermediario.
-Ogni ISP ha un \textbf{DNS locale} e lui opera da proxy, inoltra la query in una gerarchia di server D e lui opera da proxy, inoltra la query in una gerarchia di server DNS.
-Approccio con \textbf{expiring date} per il mantenimento delle informazioni.
+Una macchina fuori dalla gerarchia, che si occuperà di fare da client per le comunicazioni tra il client reale e l'host radice, funzionando da intermediario. I DNS locali agiscono come \textit{resolver ricorsivi}, effettuando le query per conto dei client.
+
+Ogni ISP ha un \textbf{DNS locale} e lui opera da proxy, inoltra la query in una gerarchia di server DNS. Gli ISP forniscono DNS locali ai loro clienti. I DNS locali fanno \textit{caching} dei record DNS per migliorare le prestazioni.
+
+Approccio con \textbf{expiring date} (o TTL - Time-To-Live) per il mantenimento delle informazioni, usato per \textit{invalidare} i record in cache.
 
 \subsubsection*{Esempio di query iterativa}
 \begin{enumerate}
-\item Il \textbf{client web richiedente} chiede al \textbf{client DNS proprio} (chiamata API del sistema) di tradurre un hostname.
+\item Il \textbf{client web richiedente} chiede al \textbf{client DNS proprio} (che è tipicamente parte del sistema operativo) di tradurre un hostname.
 \item Il \textbf{client DNS} parla col \textbf{server DNS locale}.
-\item Il \textbf{server DNS locale} richiede informazioni al \textbf{server DNS radice}. 
-\item Il \textbf{server DNS radice} da informazioni sul \textbf{server TLD} che avrà l'informazione richiesta al \textbf{server DNS locale}.
-\item Il \textbf{server DNS locale} richiede informazioni al \textbf{server DNS TLD}. 
-\item Il \textbf{server DNS TLD} darà informazioni sul \textbf{server di competenza} che conterrà l'informazione che ci interessa al \textbf{server DNS locale}. 
-\item Il \textbf{server DNS locale} richiede informazioni al \textbf{server di competenza}. 
-\item Il \textbf{server di competenza} darà l'IP corrispondente dell'hostname al \textbf{server DNS locale}.
-\item Il \textbf{server DNS locale}, ricevendo l'informazione dal \textbf{server di competenza}, la manda al \textbf{client dns richidenete} che trasferirà l'informazione al \textbf{client web richiedente} che potrà accedere ora al \textbf{server web richiesto}.
+\item Il \textbf{server DNS locale} richiede informazioni al \textbf{server DNS radice}.
+\item Il \textbf{server DNS radice} fornisce un riferimento al \textbf{server TLD} al \textbf{server DNS locale}.
+\item Il \textbf{server DNS locale} richiede informazioni al \textbf{server DNS TLD}.
+\item Il \textbf{server DNS TLD} fornisce un riferimento al \textbf{server di competenza} al \textbf{server DNS locale}.
+\item Il \textbf{server DNS locale} richiede informazioni al \textbf{server di competenza}.
+\item Il \textbf{server di competenza} fornisce l'IP corrispondente dell'hostname al \textbf{server DNS locale}.
+\item Il \textbf{server DNS locale}, ricevendo l'informazione dal \textbf{server di competenza}, la manda al \textbf{client dns richiedente} che trasferirà l'informazione al \textbf{client web richiedente} che potrà ora usare l'IP per connettersi al \textbf{server web richiesto}.
 \end{enumerate}
 
+\subsubsection*{DNS Caching}
+Per migliorare le prestazioni e ridurre il carico sui server DNS, i risultati delle query DNS vengono memorizzati in una \textbf{cache DNS}. Questa cache può essere presente sia nei \textit{server DNS locali} che nei \textit{client DNS}. Quando un client richiede la traduzione di un hostname, il DNS locale controlla prima la sua cache. Se il record DNS è presente nella cache e non è scaduto (in base al valore \textit{ttl}), il DNS locale restituisce direttamente la risposta al client, evitando di dover effettuare una nuova query nella gerarchia DNS. Questo meccanismo di caching riduce significativamente il tempo di risposta e il traffico di rete.
+
 \subsubsection{Record DNS}
-Formato \textbf{RR (Record di risorsa)}: (name, value, type, ttl). \newline
+Formato \textbf{RR (Record di risorsa)}: (name, value, type, ttl), dove \textit{ttl} rappresenta il \textit{time-to-live} del record.
 4 tipi di type:
 \begin{itemize}
-  \item \textbf{Type=A}: name = nome host, value = indirizzo IP
-  \item \textbf{Type=NS}: name = dominio, value = nome del server di competenza
-  \item \textbf{Type=CNAME (canonical name)}: name = \textit{nome alias} di un nome \textit{nome canonico}, value = \textit{nome canonico}
-  \item \textbf{Type=MX}: value = nome del server di posta di \textit{name}, name = nome server
+  \item \textbf{Type=A}: name = nome host, value = indirizzo \textit{IPv4}.
+  \item \textbf{Type=NS}: name = dominio, value = nome del server di competenza, usato per \textit{delegare l'autorità} ad altri server DNS.
+  \item \textbf{Type=CNAME (canonical name)}: name = \textit{nome alias} di un nome \textit{nome canonico}, value = \textit{nome canonico}, usato per creare \textit{alias} per gli hostname.
+  \item \textbf{Type=MX}: value = nome del server di posta di \textit{name}, name = nome server, usato per \textit{instradare le email} al mail server appropriato.
 \end{itemize}
 
 \subsubsection*{Esempio popolazione DB server}
@@ -269,7 +297,8 @@ Formato \textbf{RR (Record di risorsa)}: (name, value, type, ttl). \newline
 \textbf{Name} & \textbf{Value} & \textbf{Type} \\
 .it           & a.dns.it       & NS            \\
 a.dns.it      & 22.4.9.10      & A             
-\end{tabular}
+\end{tabular} \\
+Il server radice punta al server TLD per il dominio `.it`.
 
 \bigskip
 \textbf{DB del server TLD} \newline
@@ -277,7 +306,8 @@ a.dns.it      & 22.4.9.10      & A
 \textbf{Name} & \textbf{Value}     & \textbf{Type} \\
 foo.it        & dns.foo.it         & NS            \\
 dns.foo.it    & 147.163.2.1        & A             
-\end{tabular}
+\end{tabular} \\ 
+Il server TLD punta al server autoritativo per il dominio `foo.it`.
 
 \bigskip
 \textbf{DB del server DNS autoritativo} \newline
@@ -288,8 +318,5 @@ foo.it        & s1.foo.it          & CNAME          \\
 s1.foo.it     & 143.163.2.2        & A              \\
 foo.it        & s2.foo.it          & MX             \\
 s2.foo.it     & 143.163.2.3        & A              
-\end{tabular}
-
-\subsubsection{Messaggi DNS}
-Il \textbf{protocollo DNS} mantiene lo stesso formato per le domande (query) e messaggi di risposta. 
-
+\end{tabular} \\ 
+Il server autoritativo contiene gli indirizzi IP degli host nel dominio `foo.it`, incluso il mail server. Notiamo che i record CNAME creano alias per gli hostname e che i record MX specificano il mail server per il dominio.
