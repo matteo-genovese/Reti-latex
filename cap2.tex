@@ -5,7 +5,7 @@
 \subsubsection{Architetture delle applicazioni di rete}
 Lo sviluppatore di applicazioni deve progettare l'\textbf{architettura dell'applicazione} (\textit{application architecture}). Ci sono due tipi di architettura: \textbf{client-server} o \textbf{P2P (peer-to-peer)}.
 
-L'\textbf{architettura client-server} si basa su un \textit{server} che sarà sempre attivo, con un indirizzo IP statico e sarà connesso con altri server, mentre il \textit{client} è colui che *inizia* la comunicazione con il server. Non succederà mai che il server proverà a contattare il client, e i client avranno degli indirizzi IP dinamici. Costi alti per via dell'installazione e manutenzione. Nel caso in cui il server cada e non sarà più raggiungibile tutta la rete cadrà, quindi abbiamo un \textbf{singolo punto di fallimento} che è il server.
+L'\textbf{architettura client-server} si basa su un \textit{server} che sarà sempre attivo, con un indirizzo IP statico e sarà connesso con altri server, mentre il \textit{client} è colui che \textbf{inizia} la comunicazione con il server. Non succederà mai che il server proverà a contattare il client, e i client avranno degli indirizzi IP dinamici. Costi alti per via dell'installazione e manutenzione. Nel caso in cui il server cada e non sarà più raggiungibile tutta la rete cadrà, quindi abbiamo un \textbf{singolo punto di fallimento} che è il server.
 
 L'\textbf{architettura P2P pura} si basa sulla comunicazione tra i vari \textit{peer}, dove ogni peer agisce sia come \textit{client} che come \textit{server}. Non esiste un \textit{host} sempre attivo. È un'architettura scalabile, poiché le risorse sono distribuite tra i vari peer, ma difficile da gestire per la sicurezza (tutti gli host devono essere protetti adeguatamente, se uno solo non è protetto tutta la rete è insicura) visto che manca un punto centrale di controllo, e ogni peer è un potenziale punto di fallimento.
 
@@ -32,7 +32,7 @@ Per identificare il processo ricevente bisogna avere due informazioni:
 \includegraphics[width=\textwidth, height=6cm, keepaspectratio]{img/processi-socket.png}
 
 \subsubsection{Servizi di trasporto disponibili per le applicazioni}
-L'applicazione lato mittente trasmette i messaggi tramite la socket. Lato ricevente, il protocollo a livello di trasporto deve consegnare i messaggi alla socket del processo ricevente, fornendo una comunicazione *logica* tra le applicazioni.
+L'applicazione lato mittente trasmette i messaggi tramite la socket. Lato ricevente, il protocollo a livello di trasporto deve consegnare i messaggi alla socket del processo ricevente, fornendo una \textit{comunicazione logica} tra le applicazioni.
 
 Esistono vari servizi offerti dai protocolli a livello di trasporto, tra cui: trasferimento dati affidabile, throughput, temporizzazione e sicurezza.
 
@@ -44,7 +44,7 @@ Se il protocollo a livello di trasporto fornisce questo servizio, il processo mi
 Alcune applicazioni, per esempio quelle multimediali, accettano la possibilità di perdita di dati poiché preferiscono la maggiore velocità di trasmissione, si dicono \textbf{applicazioni che tollerano le perdite} (\textit{loss-tolerant applications}), ovvero applicazioni che possono tollerare una certa perdita di dati senza impatti significativi sulla loro funzionalità.
 
 \subsubsection*{Throughput}
-Garantire il servizio di \textbf{throughput} significa garantire una certa quantità di banda per il collegamento, ovvero una certa *velocità* con cui i dati vengono trasferiti. Queste applicazioni vengono chiamate \textbf{applicazioni sensibili alla banda} (\textit{bandwidth-sensible applications}), ovvero applicazioni che richiedono un throughput minimo *garantito*.
+Garantire il servizio di \textbf{throughput} significa garantire una certa quantità di banda per il collegamento, ovvero una certa \textbf{velocità} con cui i dati vengono trasferiti. Queste applicazioni vengono chiamate \textbf{applicazioni sensibili alla banda} (\textit{bandwidth-sensible applications}), ovvero applicazioni che richiedono un \textbf{throughput minimo garantito}.
 
 Esistono delle applicazioni che non hanno bisogno di una quantità di throughput garantita, ma sono elastiche, da qui il nome \textbf{applicazioni elastiche} (\textit{elastic applications}), ovvero applicazioni che si adattano al throughput disponibile in quell'istante.
 
@@ -58,10 +58,10 @@ Infine, un protocollo a livello di trasporto può garantire la sicurezza dei dat
 Esistono due protocolli di trasporto per le applicazioni di internet:
 \begin{itemize}
   \item \textbf{TCP}: prevede una connessione e un trasporto affidabile dei dati.
-    \textbf{Servizio orientato alla connessione} \textit{(connection-oriented service)}: fa in modo che client e server si scambino informazioni di controllo a livello di trasporto prima che i messaggi a livello di applicazione comincino a fluire. Questa procedura, denominata \textbf{handshaking}, stabilisce uno *stato* sia sul client che sul server, pre-allertandoli per lo scambio di messaggi.
+  \textbf{Servizio orientato alla connessione} \textit{(connection-oriented service)}: fa in modo che client e server si scambino informazioni di controllo a livello di trasporto prima che i messaggi a livello di applicazione comincino a fluire. Questa procedura, denominata \textbf{handshaking}, stabilisce uno \textit{stato} sia sul client che sul server, pre-allertandoli per lo scambio di messaggi.
     Dopo la fase di \textit{handshaking} si dice che esiste una \textbf{connessione TCP} tra le socket di client e host, una connessione di tipo \textit{full-duplex} (i processi possono scambiare messaggi contemporaneamente in entrambe le direzioni).
     \textbf{Servizio di trasferimento affidabile} \textit{(reliable data transfer service)}: il protocollo TCP garantisce ai processi il flusso di dati senza errori, utilizzando meccanismi come acknowledgment, ritrasmissione e numeri di sequenza.
-    TCP evita la congestione della rete, *attivamente* strozzando il flusso quando è eccessivo.
+    TCP evita la congestione della rete, \textbf{attivamente} strozzando il flusso quando è eccessivo.
   \item \textbf{UDP}: protocollo minimale, è "senza connessione" (non ha bisogno di \textit{handshaking}), ciò non garantisce l'affidabilità della connessione. UDP non garantisce la consegna, l'ordine o l'assenza di duplicati. Non ha un meccanismo di gestione della congestione, manda il flusso di dati al livello di rete a qualsiasi velocità, lasciando la gestione della congestione all'applicazione.
 \end{itemize}
 
@@ -252,7 +252,7 @@ I \textit{server TLD} sono responsabili dei domini ad alto livello (.com, .co.uk
 
 I \textit{server radice} sono il vertice della gerarchia e sono \textit{essenziali} per il funzionamento del DNS. Sono 13 nel mondo (numero limitato), e verranno contattati da un \textbf{DNS locale}.
 
-Il client contatterà sempre il server radice, che darà indicazioni su dove trovare i server TLD interessati che diranno al client qual'è il server autoritativo responsabile per l'hostname scelto. In realtà, il client contatta un \textbf{DNS locale} (o \textit{ricorsivo}) che poi effettua le query iterative o ricorsive.
+Il client contatterà sempre il server radice, che darà indicazioni su dove trovare i server TLD interessati che diranno al client qual è il server autoritativo responsabile per l'hostname scelto. In realtà, il client contatta un \textbf{DNS locale} (o \textit{ricorsivo}) che poi effettua le query iterative o ricorsive.
 
 \subsubsection{DNS locale}
 Una macchina fuori dalla gerarchia, che si occuperà di fare da client per le comunicazioni tra il client reale e l'host radice, funzionando da intermediario. I DNS locali agiscono come \textit{resolver ricorsivi}, effettuando le query per conto dei client.
@@ -266,9 +266,9 @@ Approccio con \textbf{expiring date} (o TTL - Time-To-Live) per il mantenimento 
 \item Il \textbf{client web richiedente} chiede al \textbf{client DNS proprio} (che è tipicamente parte del sistema operativo) di tradurre un hostname.
 \item Il \textbf{client DNS} parla col \textbf{server DNS locale}.
 \item Il \textbf{server DNS locale} richiede informazioni al \textbf{server DNS radice}.
-\item Il \textbf{server DNS radice} fornisce un riferimento al \textbf{server TLD} al \textbf{server DNS locale}.
+\item Il \textbf{server DNS radice} fornisce un riferimento, al \textbf{server TLD}, al \textbf{server DNS locale}.
 \item Il \textbf{server DNS locale} richiede informazioni al \textbf{server DNS TLD}.
-\item Il \textbf{server DNS TLD} fornisce un riferimento al \textbf{server di competenza} al \textbf{server DNS locale}.
+\item Il \textbf{server DNS TLD} fornisce un riferimento, al \textbf{server di competenza}, al \textbf{server DNS locale}.
 \item Il \textbf{server DNS locale} richiede informazioni al \textbf{server di competenza}.
 \item Il \textbf{server di competenza} fornisce l'IP corrispondente dell'hostname al \textbf{server DNS locale}.
 \item Il \textbf{server DNS locale}, ricevendo l'informazione dal \textbf{server di competenza}, la manda al \textbf{client dns richiedente} che trasferirà l'informazione al \textbf{client web richiedente} che potrà ora usare l'IP per connettersi al \textbf{server web richiesto}.
