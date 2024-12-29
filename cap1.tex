@@ -91,7 +91,7 @@ che sommati formano il \textbf{ritardo totale di nodo} (\textit{node delay}), ov
 \]
 
 \subsubsection{Ritardo end-to-end}
-Ipotizziamo di avere una rete con $N - 1$ router tra l'host sorgente e l'host di destinazione. Inoltre, supponiamo di avere una rete non congestionata, quindi con ritardo di accodamento nullo. Questa è una *semplificazione* che ci permette di calcolare il ritardo end-to-end in modo più semplice. In questo caso, il \textbf{ritardo dalla sorgente alla destinazione} (\textit{end-to-end delay}) è dato dalla somma dei ritardi di nodo su tutti i $N$ collegamenti del percorso, e può essere calcolato con la formula:
+Ipotizziamo di avere una rete con $N - 1$ router tra l'host sorgente e l'host di destinazione. Inoltre, supponiamo di avere una rete non congestionata, quindi con ritardo di accodamento nullo. Questa è una \textit{semplificazione} che ci permette di calcolare il ritardo end-to-end in modo più semplice. In questo caso, il \textbf{ritardo dalla sorgente alla destinazione} (\textit{end-to-end delay}) è dato dalla somma dei ritardi di nodo su tutti i $N$ collegamenti del percorso, e può essere calcolato con la formula:
 \[
   d_{end-to-end} = N \cdot (d_{elaborazione} + d_{trasmissione} + d_{propagazione})
 \]
@@ -122,7 +122,7 @@ Un livello di protocolli può essere implementato sia a livello \textbf{hardware
 
 Un protocollo di livello $n$ lo possiamo trovare su più sistemi periferici, commutatori di pacchetto e altri componenti della rete. In ogni componente della rete è presente un' \textit{entità di protocollo} di livello $n$ che implementa una parte del protocollo.
 
-La modularità di questa architettura, basata sul principio dell'astrazione, rende più facile aggiornare la componentistica e i protocolli di un livello senza influenzare gli altri livelli. I protocolli dei vari livelli sono detti \textbf{pila di protocolli} (\textit{protocol stack}), una pila *gerarchica* di protocolli dove ogni livello si basa sui servizi forniti dal livello sottostante. Esaminiamoli con un approccio \textbf{top-down}. 
+La modularità di questa architettura, basata sul principio dell'astrazione, rende più facile aggiornare la componentistica e i protocolli di un livello senza influenzare gli altri livelli. I protocolli dei vari livelli sono detti \textbf{pila di protocolli} (\textit{protocol stack}), una pila \textbf{gerarchica} di protocolli dove ogni livello si basa sui servizi forniti dal livello sottostante. Esaminiamoli con un approccio \textbf{top-down}. 
 
 \subsubsection*{Livello di applicazione}
 
