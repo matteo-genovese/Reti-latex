@@ -578,7 +578,7 @@ Si usa il comando \texttt{close()} per chiudere la connessione, possono mandarlo
 
 \subsubsection*{\texttt{socket()}}
 Creazione della \textit{socket}: \texttt{int s\_listen = socket(family, type, protocol);} \\
-family: \texttt{AF\_INET} specifica IPV4 \\ type: \texttt{SOCK\_STREAM} per TCP, \texttt{SOCK\_DGRAM} per UDP \\ protocol: 0 (pseudo, IP). \\
+\texttt{family}: \texttt{AF\_INET} specifica IPV4 \\ \texttt{type}: \texttt{SOCK\_STREAM} per TCP, \texttt{SOCK\_DGRAM} per UDP \\ \texttt{protocol}: 0 (pseudo, IP). \\
 Avremo un identificativo della socket come ritorno della funzione.
 
 \subsubsection*{\texttt{bind()}}
@@ -601,6 +601,8 @@ Per impostare l'indirizzo IPV4 abbiamo due modi:
   \item Ascolta da tutti gli indirizzi locali (in questo caso): \texttt{sockAdd.sin\_addr.s\_addr = htonl(INADDR\_ANY);}
 \end{enumerate}
 Imposto la porta: \texttt{sockAdd.sin\_port = htons(9999);}
+\texttt{inet\_pton()} converte un indirizzo IP in formato testuale in un indirizzo IP in formato binario.
+\texttt{htonl()} e \texttt{htons()} convertono un intero in un formato a 32 bit e 16 bit, rispettivamente, indipendente dall'architettura dell'host (big endian o little endian).
 
 \subsubsection*{\texttt{listen()}}
 \texttt{int status = listen(s\_listen, queuelength);} \\
@@ -610,7 +612,7 @@ queuelength: numero di client che possono stare in attesa. \\
 È una funzione \textbf{non bloccante}, ritorna immediatamente un valore. `listen()` mette la socket in uno stato di \textit{ascolto passivo}.
 
 \subsubsection*{\texttt{accept()}}
-\texttt{int s\_new = accept(s\_listen, \&clientAddress, \&AddLength);}
+\texttt{int s\_new = accept(s\_listen, \&clientAddress, \&AddLength);} \\
 s\_new: nuova socket per la comunicazione con il client, fino ad adesso abbiamo usato una \textit{socket di benvenuto}. \\
 s\_listen: riferimento alla vecchia socket di benvenuto \\
 clientAddress: riferimento alla struttura sockAddr\_in con l'indirizzo del client. \\
@@ -618,14 +620,14 @@ AddLength: dimensione della variabile clientAddress. \\
 È una funzione \textbf{bloccante}, si \textit{blocca} fino a quando arriva una richiesta di connessione e quindi un \textbf{SYN}.
 
 \subsubsection*{\texttt{send()}}
-\texttt{int send(int s\_new, const void *buf, int len, int flags);}
+\texttt{int send(int s\_new, const void *buf, int len, int flags);} \\ 
 s\_new: descrittore della socket \\
 buf: puntatore al buffer \\
 len: dimensione del buffer \\
 flags: da impostare a 0. Questa funzione è usata per \textit{inviare dati} attraverso una socket.
 
 \subsubsection*{\texttt{recv()}}
-\texttt{int recv(int s\_new, void *buf, int len, unsigned int flags);}
+\texttt{int recv(int s\_new, void *buf, int len, unsigned int flags);} \\
 Simile alla send. Questa funzione è usata per \textit{ricevere dati} attraverso una socket. \\
 buf: conterrà i dati da ricevere.
 
@@ -634,3 +636,5 @@ Funzione della libreria di C, \textbf{biforca} il \textit{processo}, creando \te
 
 \subsubsection{Programmazione socket UDP}
 Non esiste il comando \texttt{listen()} nella programmazione socket UDP, poiché non è un protocollo orientato alla connessione.
+
+Per visualizzare i processi in corso, si può usare il comando \texttt{ps -ax}. Per visualizzare le socket aperte, si può usare il comando \texttt{netstat} (o \texttt{netstat -nap TCP} su macOS). Per terminare un processo, si può usare il comando \texttt{kill -9 <PID>}.
