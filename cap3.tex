@@ -527,7 +527,7 @@ Il mittente riduce la \textit{frequenza d'invio} dopo essersi accorto, con tre m
   \item \textbf{AIMD}: Incremento additivo, decremento moltiplicativo in italiano. \textbf{Fase a regime}, dopo la partenza lenta. La crescita della \textit{finestra} continua in maniera lineare di \textbf{1 MSS} dopo ogni \textit{RTT}, nel caso di perdite la \textit{finestra} viene \textbf{dimezzata}. Questo è il suo andamento:
     \begin{center}
     \includegraphics[width=\textwidth, height=4cm, keepaspectratio]{./img/AIMD.png}
-    \end{center}
+   \end{center}
     Il suo funzionamento è così diagrammato:
     \begin{center}
     \includegraphics[width=\textwidth, height=5cm, keepaspectratio]{./img/AIMD-2.png}
@@ -563,8 +563,28 @@ Il diagramma riassuntivo mostra i due stati principali del controllo di congesti
 \includegraphics[width=\textwidth]{./img/diagrammacontrollodicongestione.png}
 \end{center}
 
-\subsection{Programmazione delle socket}
+\subsubsection{Throughput TCP}
+Durante un dato intervallo di RTT, la velocità di invio dei dati è funzione della finestra di congestione e dell'RTT corrente. Se l'ampiezza della finestra vale $w$ byte, la velocità di trasmissione è approssimativamente $w/RTT$. TCP va alla ricerca di banda aggiungendo $w$ di 1 MSS a ogni RTT, fino al verificarsi di un evento di perdita. Detto $W$ il valore di $w$ quando si verifica tale evento e assumendo che RTT e $W$ siano approssimativamente costanti per la durata della connessione, la velocità di trasmissione TCP varia tra $W/(2 \cdot RTT)$ e $W/RTT$.
 
+La rete elimina un pacchetto dalla connessione quando la velocità sale a $W/RTT$; la velocità viene poi dimezzata e quindi incrementata di $MSS/RTT$ a ogni RTT; fino a quando raggiunge ancora $W/RTT$. Questo processo si ripete in continuazione. Dato che il throughput (cioè la velocità) cresce in modo lineare tra i due valori estremi, abbiamo:
+\[
+\text{throughput medio di una connessione} = \frac{0.75 \cdot W}{RTT}
+\]
+\subsubsection{Fairness - Equità TCP}
+TCP, attraverso il meccanismo di \textit{controllo della congestione}, cerca di fornire una condivisione \textbf{equa} della banda tra le connessioni. In uno scenario ideale, le connessioni TCP che condividono un collo di bottiglia dovrebbero ottenere un throughput di circa $R/K$, dove $R$ è la capacità del collegamento e $K$ è il numero di connessioni. L'algoritmo AIMD contribuisce alla \textbf{fairness}, aumentando la finestra di congestione linearmente e diminuendola moltiplicativamente in caso di perdita.
+
+Tuttavia, UDP non ha controllo di congestione, quindi può potenzialmente consumare più banda delle connessioni TCP, portando a una situazione di \textbf{unfairness}.
+
+\subsubsection*{Fairness e connessioni TCP parallele}
+Le applicazioni possono usare più connessioni TCP parallele per aumentare il loro throughput, potenzialmente superando la loro quota di banda "equa". Ad esempio, una singola connessione TCP potrebbe ottenere un throughput di $R/10$, mentre $11$ connessioni TCP parallele potrebbero ottenere un throughput maggiore di $R/2$.
+
+\subsubsection*{Fairness e UDP}
+UDP, non avendo controllo di congestione, non è \textbf{fair} e non coopera con altre applicazioni. Le applicazioni multimediali che usano UDP, preferiscono perdere pacchetti piuttosto che ridurre la velocità di trasmissione.
+
+\subsubsection*{Fairness e connessioni TCP parallele}
+Anche se TCP cerca di essere \textbf{fair}, l'uso di più connessioni TCP parallele può portare a una situazione di unfairness. Ad esempio, un'applicazione web che usa più connessioni TCP in parallelo può ottenere una porzione di banda maggiore rispetto ad altre applicazioni.
+
+\subsection{Programmazione delle socket}
 Le \textbf{socket} mettono in comunicazione \textit{livello applicativo} con il \textit{livello di trasporto}. Le socket sono \textit{endpoint} per la comunicazione. Esistono due tipi di \textit{socket}: \textbf{UDP} e \textbf{TCP}.
 
 \subsubsection{Programmazione socket TCP}
