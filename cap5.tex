@@ -62,3 +62,40 @@ Gli algoritmi di instradamento determinano il cammino a costo minimo e possono e
             \item \textit{Dinamico:} I percorsi cambiano al variare del volume di traffico o della topologia della rete. Sono più complessi da implementare ma si adattano meglio ai cambiamenti della rete.
         \end{itemize}
 \end{itemize}
+
+\subsubsection{Algoritmi di instradamento "link-state" (LS)}
+Nell'instradamento link-state, ogni nodo ha una conoscenza completa della topologia di rete e dei costi dei collegamenti. 
+Ciò si ottiene tramite il flooding delle informazioni di stato del collegamento, utilizzando un algoritmo di \textbf{link-state broadcast}. 
+L'algoritmo di Dijkstra calcola il percorso a costo minimo da un nodo (l'origine) a tutti gli altri nodi nella rete, è un algoritmo iterativo.
+
+Definiamo ora:
+\begin{itemize}
+  \item $u$: nodo di origine.
+  \item $D(v)$: costo minimo del percorso dal nodo orgine alla destinazione $v$. 
+  \item $p(v)$: immediato predecessore di v lungo il perocroso a costo minimo dall'orgine a $v$. 
+  \item $N'$: sottoinsieme di nodi contenente tutti (e solo) i nodi $v$ per cui il percorso a costo minimo dall'orgine a $v$ è noto. 
+\end{itemize}
+
+\subsubsection*{Algoritmo Dijkstra dal nodo origine u}
+\begin{algorithm}[H]
+\caption{Algoritmo Dijkstra dal nodo origine u}
+\begin{algorithmic}[1]
+\STATE \textbf{Inizializzazione:}
+\STATE \hspace{0.5cm}$N' = \{u\}$
+\STATE \hspace{0.5cm}per tutti i nodi $v$
+\STATE \hspace{1cm}se $v$ è adiacente a $u$
+\STATE \hspace{1.5cm}allora $D(v) = c(u,v)$
+\STATE \hspace{1cm}altrimenti $D(v) = \infty$
+
+\STATE \textbf{Ciclo}
+\STATE \hspace{0.5cm}determina un $w$ non in $N'$ tale che $D(w)$ sia minimo
+\STATE \hspace{0.5cm}aggiungi $w$ a $N'$
+\STATE \hspace{0.5cm}aggiorna $D(v)$ per ciascun nodo $v$ adiacente a $w$ e non in $N'$:
+\STATE \hspace{1cm}$D(v) = \min(D(v), D(w) + c(w,v))$
+\STATE \hspace{1cm}\COMMENT{il nuovo costo verso $v$ è il vecchio costo verso $v$ oppure}
+\STATE \hspace{1cm}\COMMENT{il costo del percorso minimo noto verso $w$ più il costo da $w$ a $v$}
+\STATE \hspace{0.5cm}ripeti in ciclo finché non si verifica che $N' = N$
+\end{algorithmic}
+\end{algorithm}
+
+
