@@ -76,11 +76,11 @@ I protocolli a livello di applicazione devono stabilire:
 
 \subsection{Web e HTTP}
 Il \textbf{Web} è \textit{on demand}, ciò significa che si può avere quello che si vuole quando si vuole, accedendo a risorse tramite \textbf{URL} \textit{(Uniform Resource Locator)}.
+Una \textbf{pagina web} è un documento costituito da \textit{più} oggetti, un \textbf{oggetto} è un file indirizzabile tramite un \textbf{URL}.
+In un \textit{URL} ci sono tre componenti: il protocollo (es. `http://`), il nome dell'host e il percorso dell'oggetto.
 
 \subsubsection{Panoramica di HTTP}
 \textbf{HTTP} (\textit{HyperText Transfer Protocol}) è un protocollo a livello di applicazione \textit{request-response} che utilizza \textbf{TCP} come protocollo di trasporto, implementato a due programmi, client e server.
-Una \textbf{pagina web} è un documento costituito da \textit{più} oggetti, un \textbf{oggetto} è un file indirizzabile tramite un \textbf{URL}.
-In un \textit{URL} ci sono tre componenti: il protocollo (es. `http://`), il nome dell'host e il percorso dell'oggetto.
 I \textbf{browser} implementano il protocollo \textit{HTTP} lato client, \textit{richiedendo} oggetti.
 I \textbf{server web} implementano il protocollo \textit{HTTP} lato server (Apache è un esempio), \textit{fornendo} oggetti e saranno sempre attivi con un indirizzo IP statico.
 \textit{HTTP} è un protocollo \textbf{senza memoria di stato} (\textit{stateless protocol}), ovvero i server HTTP non mantengono alcuna informazione sulle richieste passate dei client.
@@ -139,12 +139,12 @@ Il metodo \textbf{DELETE} viene utilizzato per cancellare file sul server (spess
 
 \subsubsection*{Messaggio di risposta HTTP}
 \begin{quote}
-  HTTP/1.1 200 OK
-  Connection: close \newline
+  HTTP/1.1 200 OK \newline
   Date: Thu, 18 Aug 2015 15:44:04 GMT \newline
   Server: Apache/2.2.3 (CentOS) \newline
   Last-Modified: Tue, 18 Aug 2015 15:11:03 GMT \newline
   Content-Lenght: 6821 \newline
+  Connection: close \newline
   Content-Type: text/html \newline
   (data data data data ....)
 \end{quote}
@@ -298,6 +298,7 @@ Formato \textbf{RR (Record di risorsa)}: (name, value, type, ttl), dove \textit{
 .it           & a.dns.it       & NS            \\
 a.dns.it      & 22.4.9.10      & A             
 \end{tabular} \\
+
 Il server radice punta al server TLD per il dominio `.it`.
 
 \bigskip
@@ -307,9 +308,11 @@ Il server radice punta al server TLD per il dominio `.it`.
 foo.it        & dns.foo.it         & NS            \\
 dns.foo.it    & 147.163.2.1        & A             
 \end{tabular} \\ 
+
 Il server TLD punta al server autoritativo per il dominio `foo.it`.
 
 \bigskip
+
 \textbf{DB del server DNS autoritativo} \newline
 \begin{tabular}{lll}
 \textbf{Name} & \textbf{Value}     & \textbf{Type}  \\
@@ -319,4 +322,42 @@ s1.foo.it     & 143.163.2.2        & A              \\
 foo.it        & s2.foo.it          & MX             \\
 s2.foo.it     & 143.163.2.3        & A              
 \end{tabular} \\ 
+
 Il server autoritativo contiene gli indirizzi IP degli host nel dominio `foo.it`, incluso il mail server. Notiamo che i record CNAME creano alias per gli hostname e che i record MX specificano il mail server per il dominio.
+
+\subsubsection{Formato messaggi DNS}
+
+Un messaggio DNS è composto da diverse sezioni:
+\begin{itemize}
+    \item \textbf{Sezione di intestazione} (\textit{header section}): Contiene informazioni di controllo, come l'identificatore del messaggio, i flag, e il numero di record nelle altre sezioni. Nel complesso è lungo 12 byte. Il primo campo dell'header è un numero di 16 bit che identifica la richiesta. Troviamo poi il campo flag dove $0$ indica una richiesta e $1$ una risposta. Il successivo bit di flag è di richiesta di ricorsione quando il client chiede al server di effettuare una ricorsione in mancanza del record richiesto, viene impostato un campo di 1 bit nel server in caso supporti questa funzione. I sucessivi campi "numero di \dots" indicano il numero di occorrenze delle quattro sezioni aggiuntive. 
+    \item \textbf{Sezione delle domande}: Contiene la query DNS, ovvero il nome di dominio e il tipo di record richiesto.
+    \item \textbf{Sezione delle risposte}: Contiene i record di risorsa (RR) che rispondono alla query.
+    \item \textbf{Sezione autoritativa}: Contiene i record di risorsa (RR) che identificano i server DNS autoritativi per il dominio richiesto.
+    \item \textbf{Sezione aggiuntiva}: Contiene record di risorsa (RR) aggiuntivi che possono essere utili per la risoluzione del nome.
+\end{itemize}
+
+\begin{center}
+  \begin{tabular}{|c|c}
+    \hline
+    \multicolumn{1}{|c|}{Identificatore} & \multicolumn{1}{c|}{Flag} \\
+    \hline
+    \multicolumn{1}{|c|}{Numero di domande} & \multicolumn{1}{c|}{Numero di RR di risposta} \\
+    \hline
+    \multicolumn{1}{|c|}{Numero di RR autoritativi} & \multicolumn{1}{c|}{Numero di RR addizionali} \\
+    \hline \hline
+    \multicolumn{2}{|c|}{Sezione delle domande} \\ 
+    \multicolumn{2}{|c|}{(numero variabile di domande)} \\ 
+    \hline
+    \multicolumn{2}{|c|}{Sezione delle risposte} \\ 
+    \multicolumn{2}{|c|}{(numero variabile di record di risorsa)} \\ 
+    \hline
+    \multicolumn{2}{|c|}{Sezione autoritativa} \\ 
+    \multicolumn{2}{|c|}{(numero variabile di record di risorsa)} \\ 
+    \hline
+    \multicolumn{2}{|c|}{Sezione aggiuntiva} \\
+    \multicolumn{2}{|c|}{(numero variabile di record di risorsa)} \\ 
+    \hline
+  \end{tabular}
+\hspace{0.5cm}
+\end{center}
+
