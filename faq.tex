@@ -1,0 +1,111 @@
+\section{FAQ}
+\begin{itemize}
+    \item \textbf{IPv4 e frammentazione}
+        \begin{itemize}
+            \item I datagrammi IP vengono frammentati in datagrammi più piccoli quando un datagramma è più grande dell'MTU di un collegamento.
+        \end{itemize}
+    \item \textbf{DHCP}
+        \begin{itemize}
+            \item È una funzionalità di livello rete ma gestita da un processo a livello applicativo che utilizza delle socket UDP, porta con numero 67 (il server usa la porta 67 come \textit{porta di destinazione}), mentre i client aprono la porta 68 (il client usa la porta 68 come \textit{porta di destinazione}) con indirizzo IP $0.0.0.0$. DHCP è un \textit{protocollo a livello applicativo} che usa UDP.
+            \item Il client appena inserito sulla rete non ha, giustamente, indirizzo IP e non conosce l'indirizzo IP del server DHCP, quindi il client invia un messaggio \textit{broadcast} (usando un \textit{indirizzo broadcast limitato} come 255.255.255.255) sulla porta 67, cercando un server DHCP, anche il server DHCP risponderà in \textit{broadcast} (usando un \textit{indirizzo broadcast limitato}), poiché il destinatario non ha ancora un \textit{indirizzo IP}.
+            \item Consente di ottenere \textbf{dinamicamente} gli indirizzi IP degli \textit{host}, assegnando indirizzi IP da un \textit{pool di indirizzi disponibili}. Non assegna obbligatoriamente lo stesso IP all'host, varia in base a quelli che ha disponibile. Il \textbf{transaction ID} serve al \textit{server} per sapere con chi sta parlando e a chi assegnare l'\textit{indirizzo IP}, usato per \textit{abbinare richieste e risposte}.
+        \end{itemize}
+    \item \textbf{Come vengono memorizzati gli indirizzi del DNS}
+        \begin{itemize}
+            \item I server autoritativi sono i server che posseggono le traduzioni, sono di società che posseggono host Internet, devono fornire i record DNS di pubblico dominio che mappano i nomi di tali host in indirizzi IP. Sono la fonte finale dei record DNS per un dominio specifico.
+            \item I server TLD sono responsabili dei domini ad alto livello (.com, .co.uk, .it...), vengono gestiti da nazioni o da aziende e sono responsabili di delegare l'autorità ai server autoritativi.
+            \item I server radice sono il vertice della gerarchia e sono essenziali per il funzionamento del DNS. Sono 13 nel mondo (numero limitato), e verranno contattati da un DNS locale.
+        \end{itemize}
+    \item \textbf{Perché esiste IPv6}
+        \begin{itemize}
+            \item Il motivo per cui è stato progettato il protocollo \textbf{IP versione 6} è che si stanno esaurendo gli indirizzi IP a 32 bit. Gli indirizzi IPv6 sono \textit{128 bit}, rispetto ai 32 bit di IPv4. Inoltre è stato progettato per migliorare l'infrastruttura generale e velocizzarla.
+        \end{itemize}
+    \item \textbf{Struttura messaggi DNS}
+        \begin{itemize}
+            \item Formato RR (Record di risorsa): (name, value, type, ttl), dove \textit{ttl} rappresenta il \textit{time-to-live} del record. 4 tipi di type:
+                \begin{itemize}
+                    \item \textbf{Type=A}: name = nome host, value = indirizzo \textit{IPv4}.
+                    \item \textbf{Type=NS}: name = dominio, value = nome del server di competenza, usato per \textit{delegare l'autorità} ad altri server DNS.
+                    \item \textbf{Type=CNAME (canonical name)}: name = \textit{nome alias} di un nome \textit{nome canonico}, value = \textit{nome canonico}, usato per creare \textit{alias} per gli hostname.
+                    \item \textbf{Type=MX}: value = nome del server di posta di \textit{name}, name = nome server, usato per \textit{instradare le email} al mail server appropriato.
+                \end{itemize}
+        \end{itemize}
+    \item \textbf{FSM TCP}
+        \begin{itemize}
+            \item Il protocollo TCP offre vari servizi, tra cui: controllo di congestione e controllo di flusso, questo garantirà un trasferimento dati \textit{affidabile, ordinato e connection-oriented}, ma avrà ritardi nel trasporto a causa di un maggiore \textit{overhead} e \textit{potenziali ritardi}.
+        \end{itemize}
+    \item \textbf{DNS e struttura dei suoi messaggi}
+        \begin{itemize}
+            \item Il \textbf{DNS} è un protocollo, ma in realtà è un sistema *gerarchico* e *distribuito*, \textit{Domain Name System}.
+            \item Il web è identificato da un nome simbolico, il nome dell'host, che è \textit{leggibile dagli umani}, ma il modo univoco per identificare il server è il suo indirizzo IP (32 bit), che è \textit{leggibile dalle macchine}.
+            \item È un sistema distribuito, esistono vari server, organizzati in modo \textit{gerarchico}, che conoscono l'associazione fra nome host e indirizzo IP.
+        \end{itemize}
+    \item \textbf{NAT}
+        \begin{itemize}
+            \item Consente di separare una rete specifica dalle altre, crea la \textbf{rete privata}. L'acronimo sta per: \textbf{Network address translation}, usato per \textit{conservare gli indirizzi IP pubblici}.
+            \item Il \textbf{NAT} si trova all'interno del \textit{router}, che si trova al \textit{confine} tra la rete privata e quella pubblica. Le reti esterne vedono la rete privata come un \textbf{unico} \textit{indirizzo IP}, che sarà quello assegnato al \textit{router}. L'indirizzo IP pubblico è l'\textit{unico indirizzo IP} visibile all'esterno. Le macchine all'interno della \textit{rete privata} avranno degli \textbf{indirizzi IP privati}, che saranno visibili solo all'interno della \textit{rete privata}. Le reti private usano \textit{range di indirizzi IP privati}.
+            \item Il router NAT \textit{mantiene una tabella di traduzione} per mappare indirizzi IP privati e porte a indirizzi IP pubblici e porte.
+        \end{itemize}
+    \item \textbf{Struttura pacchetto TCP e cosa è}
+        \begin{itemize}
+            \item Il protocollo TCP offre vari servizi, tra cui: controllo di congestione e controllo di flusso, questo garantirà un trasferimento dati \textit{affidabile, ordinato e connection-oriented}, ma avrà ritardi nel trasporto a causa di un maggiore \textit{overhead} e \textit{potenziali ritardi}.
+            \item  Dopo la fase di \textit{handshaking} si dice che esiste una \textbf{connessione TCP} tra le socket di client e host, una connessione di tipo \textit{full-duplex} (i processi possono scambiare messaggi contemporaneamente in entrambe le direzioni).
+        \end{itemize}
+    \item \textbf{Cosa sono le socket}
+        \begin{itemize}
+            \item Le \textbf{socket} mettono in comunicazione \textit{livello applicativo} con il \textit{livello di trasporto}. Le socket sono \textit{endpoint} per la comunicazione. Esistono due tipi di \textit{socket}: \textbf{UDP} e \textbf{TCP}.
+        \end{itemize}
+    \item \textbf{RTT di TCP}
+        \begin{itemize}
+            \item \textbf{Round-trip time (RTT)}: tempo impiegato da un pacchetto per viaggiare dal client al server e tornare al client. È una \textit{misura} della latenza di rete. Include i ritardi di propagazione, di accodamento nei router e nei commutatori intermedi e di elaborazione del pacchetto.
+        \end{itemize}
+    \item \textbf{Come è fatto un segmento UDP}
+        \begin{itemize}
+            \item L'intestazione UDP è formata da numero porta origine, numero porta di destinazione, lunghezza in byte del segmento UDP con intestazione e il checksum (che è \textit{opzionale} in IPv4, aggiunge bit alla fine per controllare se viene corrotto il pacchetto), tutti tasselli da 16 bit, totale di 8 Byte.
+        \end{itemize}
+    \item \textbf{Rappresentazione grafica RTT ed stima RTT}
+        \begin{itemize}
+            \item Il problema principale è stimare correttamente la durata del timer utilizzando la \textbf{media mobile esponenziale ponderata}. L'obiettivo è impostare un timeout \textit{ragionevole}, che non sia troppo corto (causando ritrasmissioni inutili) né troppo lungo (causando ritardi). La media mobile esponenziale ponderata è una tecnica che dà \textit{più peso ai campioni recenti} del RTT.
+        \end{itemize}
+    \item \textbf{Messaggi posta elettronica}
+        \begin{itemize}
+            \item L'\textit{user agent} (un'applicazione usata per comporre, inviare e ricevere email) invia il messaggio al proprio \textit{mail server} (il distributore del servizio che memorizza e inoltra i messaggi) che invierà la mail al \textit{mail server} del destinatario.
+            \item Componenti della posta elettronica:
+                \begin{itemize}
+                    \item \textbf{casella di posta}: contenitore dei messaggi in arrivo, collocata in un \textit{mail server}. Ogni utente ha una casella di posta \textit{unica} su un mail server.
+                    \item \textbf{Coda di messaggi}: mail che devono arrivare al destinatario, memorizzate \textit{temporaneamente} in attesa di consegna.
+                    \item \textbf{Protocollo SMTP} (Simple Mail Transfer Protocol): regola la comunicazione tra i \textit{mail server} e tra gli \textit{user agent} e i proprio \textit{mail server}, usato per \textit{trasferire} i messaggi. Principale protocollo a livello di applicazione per la posta elettronica, utilizza \textit{TCP}.
+                \end{itemize}
+        \end{itemize}
+    \item \textbf{Congestione Tcp}
+        \begin{itemize}
+            \item Per le leggi fisiche non è possibile scambiare dati istantaneamente. Le reti introducono ritardi, perdono pacchetti e limitano il \textbf{throughput} (la quantità di dati al secondo che può essere trasferita tra due sistemi periferici) a causa di fattori come la congestione della rete e le limitazioni fisiche dei collegamenti.
+        \end{itemize}
+    \item \textbf{Controllo di flusso}
+        \begin{itemize}
+            \item Il controllo di flusso serve a \textit{prevenire che il mittente sovraccarichi il ricevitore}.
+            \item Il valore di \textbf{RcvWindow} verrà inserito all'interno dei segmenti, il mittente usa il valore di `RcvWindow` per \textit{limitare la quantità di dati non riscontrati} che invia, così che non vengano inviati dati che verranno sicuramente persi. Il campo `RcvWindow` indica la \textit{quantità di spazio libero} nel buffer del ricevitore.
+        \end{itemize}
+    \item \textbf{Multiplexing e demultiplexing tcp}
+        \begin{itemize}
+            \item Il demultiplexing TCP si basa sull'identificazione delle socket TCP tramite una quaterna: indirizzo IP di origine, numero di porta di origine, indirizzo IP di destinazione e numero di porta di destinazione. Questa quaterna identifica \textit{univocamente una connessione TCP}.
+        \end{itemize}
+    \item \textbf{Tabella di inoltro di un router}
+        \begin{itemize}
+            \item Le tabelle di inoltro, utilizzate per determinare la porta di uscita di un pacchetto, sono elaborate e aggiornate dal processore di instradamento. Una copia di queste tabelle è memorizzata su ciascuna porta di ingresso per velocizzare il processo di inoltro.
+            \item La ricerca nella tabella di inoltro si basa sul confronto tra un prefisso dell'indirizzo di destinazione del pacchetto e le righe della tabella.
+            \item Se un indirizzo di destinazione corrisponde a più righe, il router adotta la regola di corrispondenza a prefisso più lungo, inoltrando il pacchetto all'interfaccia di collegamento associata alla corrispondenza più lunga.
+        \end{itemize}
+    \item \textbf{Throughput tcp}
+        \begin{itemize}
+            \item Ogni pacchetto viene trasmesso sul collegamento fisico alla velocità di trasmissione $R$ (misurata in bit al secondo, bps). Un pacchetto di $L$ bit impiegherà quindi $L/R$ secondi per essere trasmesso completamente sul collegamento.
+        \end{itemize}
+    \item \textbf{Equità tcp}
+        \begin{itemize}
+            \item TCP, attraverso il meccanismo di controllo della congestione, cerca di fornire una condivisione "\textbf{equa}" della banda tra le connessioni. In uno scenario ideale, le connessioni TCP che condividono un collo di bottiglia dovrebbero ottenere un throughput di circa $R/K$, dove $R$ è la capacità del collegamento e $K$ è il numero di connessioni. L'algoritmo AIMD contribuisce alla \textbf{fairness}, aumentando la finestra di congestione linearmente e diminuendola moltiplicativamente in caso di perdita.
+        \end{itemize}
+    \item \textbf{Ipv6}
+        \begin{itemize}
+            \item Il motivo per cui è stato progettato il protocollo \textbf{IP versione 6} è che si stanno esaurendo gli indirizzi IP a 32 bit. Gli indirizzi IPv6 sono \textit{128 bit}, rispetto ai 32 bit di IPv4. Inoltre è stato progettato per migliorare l'infrastruttura generale e velocizzarla.
+        \end{itemize}
+\end{itemize}
