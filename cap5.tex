@@ -1,19 +1,15 @@
 \section{Livello di rete (Piano di controllo)}
 Il livello di rete ha due funzioni principali:
 \begin{itemize}
-  \item \textbf{forwarding}: sposta i pacchetti dal router di input ad un appropriato router di output (piano dei dati).
-  \item \textbf{routing}: determina il percorso che devono seguire i pacchetti dalla sorgente alla destinazione (piano di controllo).
+  \item \textbf{Forwarding (Inoltro):} Sposta i pacchetti dalla porta di input di un router a quella di output appropriata. Questa funzione appartiene al \textbf{piano dei dati}.
+  \item \textbf{Routing (Instradamento):} Determina il percorso che i pacchetti devono seguire dalla sorgente alla destinazione. Questa funzione appartiene al \textbf{piano di controllo}.
 \end{itemize}
 
-Il \textbf{piano dei dati} si occupa dell'inoltro dei pacchetti, ovvero del loro trasferimento da una porta di ingresso a una porta di uscita del router. 
-
-Il \textbf{piano di controllo}, invece, si occupa dell'instradamento, ovvero della determinazione del percorso che i pacchetti devono seguire. 
-
-In questo capitolo studieremo come le tabelle di inoltro e dei flussi vengono calcolate, mantenute e installate. Esistono due possibili approcci:
+Il piano di controllo determina come i datagrammi vengono instradati. Ciò può avvenire secondo due approcci:
 
 \begin{itemize}
-  \item \textbf{Controllo per router.} L'algoritmo di instradamento viene eseguito su ogni singolo router, all'interno del quale vengono effettuate sia le funzioni di inoltro (piano dei dati) che quelle di instradamento (piano di controllo). Ogni router ha una componente di instradamento che comunica con le componenti di instradamento degli altri router per calcolare la propria tabella di inoltro.
-  \item \textbf{Controllo logicamente centralizzato.} Un controller logicamente centralizzato calcola e distribuisce le tabelle di inoltro che devono essere utilizzate da ogni router. Il controller interagisce con l'agente di controllo (CA, Control Agent) in ogni router tramite un protocollo che configura e gestisce la tabella dei flussi del router.
+  \item \textbf{Controllo per router:} Un algoritmo di instradamento viene eseguito su ogni singolo router. Ogni router possiede una componente di instradamento che comunica con gli altri router per calcolare la propria tabella di inoltro.
+  \item \textbf{Controllo logicamente centralizzato (SDN):} Un controller remoto, logicamente centralizzato, calcola e distribuisce le tabelle di inoltro a ogni router. Il controller interagisce con un agente di controllo (CA, Control Agent) presente su ogni dispositivo.
 \end{itemize}
 
 Per controllo logicamente centralizzato intendiamo un servizio di controllo dell'instradamento a cui si accede come se fosse un singolo punto centrale di servizio, anche se il servizio probabilmente viene implementato su più server per ragioni di resistenza ai guasti e scalabilità delle prestazioni. 
@@ -30,26 +26,28 @@ Per controllo logicamente centralizzato intendiamo un servizio di controllo dell
 Come mostrato nelle immagini, il controllo per router prevede che ogni router esegua un algoritmo di instradamento e comunichi con gli altri router, mentre il controllo centralizzato prevede un controller remoto che interagisce con gli agenti di controllo locali nei router.
 
 \subsection{Algoritmi di instradamento}
-Gli algoritmi di instradamento (routing algorithm) determinano i percorsi a costo minimo tra sorgenti e destinazioni attraverso la rete di router.
+Gli algoritmi di instradamento \textit{(routing algorithm)} determinano i percorsi a costo minimo tra sorgenti e destinazioni attraverso la rete di router.
 
 \subsubsection*{Grafo di una rete di calcolatori}
-Un grafo \(G = (N, E)\) è un insieme \(N\) di nodi (router) e un insieme \(E\) di archi (collegamenti) tra i nodi. Ad ogni arco è associato un costo \(c(x,y)\). Il costo di un percorso è la somma dei costi degli archi lungo il percorso. L'obiettivo è trovare il percorso a costo minimo tra due nodi.
+Per studiare la rete possiamo modellarla come un \textbf{grafo}, dove \(G = (N, E)\) è un insieme \(N\) di nodi (router) e un insieme \(E\) di archi (collegamenti fisici) tra i nodi. Ad ogni arco è associato un costo \(c(x,y)\). Il costo di un percorso è la somma dei costi degli archi lungo il percorso. L'obiettivo è trovare il percorso a costo minimo tra due nodi.
 
 \begin{center}
   \includegraphics[width=0.7\textwidth]{./img/grafo.png}
+  \label{fig:grafo}
 \end{center}
 
-\subsubsection*{Definizioni dei grafi}
+\subsubsection*{Definizioni e Terminologia dei Grafi}
 
-\begin{itemize}
-  \item nodo \textbf{vicino} o \textbf{adiacente}: un nodo y è vicino a un nodo x se (x, y) è un nodo di E. 
-  \item \textbf{percorso}: sequenza di nodi (x\_1, x\_2, \dots, x\_p) tali che ciascuna delle coppie (x\_1, x\_2), (x\_2. x\_3), \dots (x\_{p-1}, x\_p) sia un arco di E.
-  \item \textbf{percorso a costo minimo} (\textit{least-cost path}): Tra tutti i possibili percorsi tra due nodi, il percorso a costo minimo è quello con il costo totale più basso. 
-  \item \textbf{Percorso Più Breve:} Se tutti gli archi del grafo hanno lo stesso costo, il percorso a costo minimo corrisponde al percorso più breve, ovvero quello con il minor numero di collegamenti. 
-\end{itemize}
+\begin{description}
+  \item[Nodo vicino (o adiacente)] Un nodo \(y\) è vicino a un nodo \(x\) se \((x, y)\) è un arco in \(E\).
+  \item[Percorso] Una sequenza di nodi \((x_1, x_2, \dots, x_p)\) tali che ogni coppia \((x_i, x_{i+1})\) sia un arco in \(E\).
+  \item[Costo del percorso] La somma dei costi di tutti gli archi che compongono il percorso.
+  \item[Percorso a costo minimo (\textit{least-cost path})] Il percorso che, tra tutte le alternative possibili per congiungere due nodi, ha il costo totale più basso.
+  \item[Percorso più breve (\textit{shortest path})] Corrisponde al percorso a costo minimo quando tutti gli archi del grafo hanno lo stesso costo.
+\end{description}
 
 \subsubsection*{Classificazione degli algoritmi di instradamento}
-Gli algoritmi di instradamento determinano il cammino a costo minimo e possono essere classificati in base a diversi criteri:
+Gli algoritmi di instradamento possono essere classificati secondo diversi criteri:
 \begin{itemize}
     \item \textbf{Globale o Decentralizzato:}
         \begin{itemize}
@@ -66,14 +64,15 @@ Gli algoritmi di instradamento determinano il cammino a costo minimo e possono e
 \subsubsection{Algoritmi di instradamento "link-state" (LS)}
 Nell'instradamento link-state, ogni nodo ha una conoscenza completa della topologia di rete e dei costi dei collegamenti. 
 Ciò si ottiene tramite il flooding delle informazioni di stato del collegamento, utilizzando un algoritmo di \textbf{link-state broadcast}. 
-L'algoritmo di Dijkstra calcola il percorso a costo minimo da un nodo (l'origine) a tutti gli altri nodi nella rete, è un algoritmo iterativo.
+L'algoritmo di Dijkstra calcola il percorso a costo minimo da un nodo (l'origine) a tutti gli altri nodi nella rete. È un algoritmo iterativo e vale la seguente proprietà:
+dopo la $k-esima$ iterazione, i percorsi a costo minimo sono noti a $k$ nodi di destinazione e, tra i percorsi a costo minimo verso tutti i nodi di destinazione, questi k percorsi hanno i $k$ costi più bassi. 
 
 Definiamo ora:
 \begin{itemize}
   \item $u$: nodo di origine.
-  \item $D(v)$: costo minimo del percorso dal nodo orgine alla destinazione $v$. 
-  \item $p(v)$: immediato predecessore di v lungo il perocroso a costo minimo dall'orgine a $v$. 
-  \item $N'$: sottoinsieme di nodi contenente tutti (e solo) i nodi $v$ per cui il percorso a costo minimo dall'orgine a $v$ è noto. 
+  \item $D(v)$: costo minimo del percorso dal nodo origine alla destinazione $v$. 
+  \item $p(v)$: immediato predecessore di v lungo il percorso a costo minimo dall'origine a $v$. 
+  \item $N'$: sottoinsieme di nodi contenente tutti (e solo) i nodi $v$ per cui il percorso a costo minimo dall'origine a $v$ è noto. 
 \end{itemize}
 
 \subsubsection*{Algoritmo Dijkstra dal nodo origine u}
@@ -98,5 +97,328 @@ Definiamo ora:
 \end{algorithmic}
 \end{algorithm}
 
-asd
+\subsubsection*{Esempio di esecuzione dell'algoritmo di Dijkstra}
+Consideriamo l'esempio di rete mostrato in precedenza (\ref{fig:grafo}) con nodo di origine \(u = 'u'\). La tabella seguente mostra l'evoluzione dell'algoritmo:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{Passo} & \textbf{N'} & \textbf{D(v),p(v)} & \textbf{D(w),p(w)} & \textbf{D(x),p(x)} & \textbf{D(y),p(y)} & \textbf{D(z),p(z)} \\
+\hline
+0 & u & 2,u & 5,u & 1,u & $\infty$ & $\infty$ \\
+\hline
+1 & ux & 2,u & 4,x & - & 2,x & $\infty$ \\
+\hline
+2 & uxy & 2,u & 3,y & - & - & 4,y \\
+\hline
+3 & uxyv & - & 3,y & - & - & 4,y \\
+\hline
+4 & uxyvw & - & - & - & - & 4,y \\
+\hline
+5 & uxyvwz & - & - & - & - & - \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Inizializzazione (Passo 0):} Il nodo di origine $u$ è aggiunto a $N'$. Per tutti i nodi adiacenti a $u$ (v, w, x), $D$ è impostato al costo del collegamento diretto; per gli altri nodi (y, z) è impostato a $\infty$.
+
+\textbf{Iterazione 1:} Il nodo $x$ ha il costo minimo (1) tra tutti i nodi non in $N'$, quindi viene aggiunto a $N'$. Si aggiornano le stime per i nodi adiacenti a $x$: $D(w) = \min(5, 1+3) = 4$ e $D(y) = \min(\infty, 1+1) = 2$.
+
+\textbf{Iterazione 2:} Il nodo $y$ ha il costo minimo (2) tra i nodi rimanenti, viene aggiunto a $N'$. Si aggiorna $D(w) = \min(4, 2+1) = 3$.
+
+L'algoritmo termina quando tutti i nodi sono inclusi in $N'$. A questo punto, abbiamo determinato i percorsi a costo minimo da $u$ a tutti gli altri nodi della rete.
+
+\subsubsection*{Complessità dell'algoritmo di Dijkstra}
+La complessità dell'algoritmo di Dijkstra dipende dall'implementazione:
+\begin{itemize}
+  \item \textbf{Implementazione semplice}: $O(n^2)$ dove $n$ è il numero di nodi. Ad ogni iterazione dobbiamo cercare il nodo con costo minimo tra tutti i nodi non ancora in $N'$.
+  \item \textbf{Implementazione con heap}: $O(n \log n)$ utilizzando una struttura dati heap per mantenere i nodi ordinati per costo.
+\end{itemize}
+
+\subsubsection*{Proprietà degli algoritmi link-state}
+Gli algoritmi link-state presentano le seguenti caratteristiche:
+\begin{itemize}
+  \item \textbf{Convergenza}: L'algoritmo converge rapidamente poiché ogni nodo ha una visione completa della topologia.
+  \item \textbf{Robustezza}: Un nodo può annunciare un costo errato solo per i propri collegamenti adiacenti, limitando la propagazione di errori.
+  \item \textbf{Overhead di messaggi}: Ogni nodo deve inviare $O(|N| \cdot |E|)$ messaggi, dove $|N|$ è il numero di nodi e $|E|$ è il numero di archi.
+  \item \textbf{Memoria}: Ogni nodo deve mantenere l'intera topologia di rete in memoria.
+\end{itemize}
+
+% Correzione: aggiunta della \textbf{distribuzione} per coerenza con il libro
+\subsubsection{Instradamento "distance-vector" (DV)}
+Mentre l'instradamento link-state utilizza informazioni globali, l'instradamento distance-vector è \textbf{iterativo}, \textbf{asincrono} e \textbf{distribuito}.
+
+\begin{itemize}
+  \item \textbf{Distribuito}: ciascun nodo riceve parte dell'informazione da uno o più dei suoi vicini direttamente connessi, a cui, dopo aver effettuato il calcolo, restituisce i risultati.
+  \item \textbf{Iterativo}: questo processo si ripete fino a quando non avviene ulteriore scambio informativo tra vicini.
+  \item \textbf{Asincrono}: non richiede che tutti i nodi operino al passo con gli altri.
+  \item \textbf{Auto-terminante}: non vi è alcun segnale che il calcolo debba fermarsi, semplicemente si blocca quando non ci sono più aggiornamenti da scambiare.
+\end{itemize}
+
+\subsubsection*{Formula di Bellman-Ford}
+Sia $d_{xy}$ il costo del percorso a costo minimo dal nodo $x$ al nodo $y$. Allora i costi minimi sono correlati dalla \textbf{formula di Bellman-Ford}:
+
+\[
+d_{xy} = \min_v \{c(x,v) + d_{vy}\}
+\]
+
+dove $\min_v$ riguarda tutti i vicini $v$ di $x$. Dopo aver viaggiato da $x$ a $v$, consideriamo il percorso a costo minimo da $v$ a $y$, il costo del percorso sarà $c(x,v) + d_{vy}$.
+
+\subsubsection*{Algoritmo di Bellman-Ford}
+Ciascun nodo $x$ inizia con $D_x(y)$, una stima del costo del percorso a costo minimo da sé stesso al nodo $y$, per tutti i nodi in $N$. Sia $\mathbf{D_x} = [D_x(y): y \in N]$ il \textbf{vettore delle distanze} del nodo $x$.
+
+Con l'algoritmo Bellman-Ford, ciascun nodo $x$ mantiene i seguenti dati di instradamento:
+\begin{itemize}
+  \item Per ciascun vicino $v$, il costo $c(x,v)$ da $x$ al vicino $v$.
+  \item Il vettore delle distanze del nodo $x$, che è $\mathbf{D_x} = [D_x(y): y \in N]$, contenente la stima presso $x$ del costo verso tutte le destinazioni $y$ in $N$.
+  \item I vettori delle distanze di ciascuno dei suoi vicini, ossia $\mathbf{D_v} = [D_v(y): y \in N]$, per ciascun vicino $v$ di $x$.
+\end{itemize}
+
+\begin{algorithm}[H]
+\caption{Algoritmo Bellman-Ford}
+\begin{algorithmic}[1]
+\STATE \textbf{A ciascun nodo x:}
+\STATE \textbf{Inizializzazione:}
+\STATE \hspace{0.5cm}per tutte le destinazioni $y$ in $N$:
+\STATE \hspace{1cm}$D_x(y) = c(x,y)$ \COMMENT{se $y$ non è adiacente, allora $c(x,y) = \infty$}
+\STATE \hspace{0.5cm}per ciascun vicino $w$:
+\STATE \hspace{1cm}$D_w(y) = ?$ per tutte le destinazioni $y$ in $N$
+\STATE \hspace{0.5cm}per ciascun vicino $w$:
+\STATE \hspace{1cm}invia il vettore delle distanze $\mathbf{D_x} = [D_x(y): y \in N]$ a $w$
+
+\STATE \textbf{Ciclo:}
+\STATE \hspace{0.5cm}attendi finché vedi cambiare il costo di un collegamento verso
+\STATE \hspace{0.5cm}qualche vicino $w$ o finché ricevi un vettore delle distanze
+\STATE \hspace{0.5cm}da qualche vicino $w$
+\STATE \hspace{0.5cm}per ogni $y$ in $N$:
+\STATE \hspace{1cm}$D_x(y) = \min_v \{c(x,v) + D_v(y)\}$
+\STATE \hspace{0.5cm}se $D_x(y)$ è cambiato per qualche destinazione $y$:
+\STATE \hspace{1cm}invia il vettore delle distanze $\mathbf{D_x} = [D_x(y): y \in N]$ a tutti i vicini
+\STATE \hspace{0.5cm}ripeti il ciclo indefinitamente
+\end{algorithmic}
+\end{algorithm}
+
+In questo algoritmo distribuito e asincrono, ogni tanto un nodo invia una copia del proprio vettore delle distanze a ciascuno dei suoi vicini. Quando un nodo $x$ riceve un nuovo vettore da qualcuno dei suoi vicini $v$, lo salva e quindi usa la formula di Bellman-Ford per aggiornare il proprio vettore.
+
+\subsubsection*{Esempio di funzionamento}
+Consideriamo una semplice rete a tre nodi per illustrare il funzionamento dell'algoritmo DV. La seguente tabella mostra l'evoluzione sincrona dell'algoritmo (anche se nella realtà opera in modo asincrono):
+
+% Correzione: formattazione migliorata della tabella per essere più leggibile
+\begin{table}[H]
+\centering
+\caption{Evoluzione dell'algoritmo Distance-Vector}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Tempo} & \textbf{Nodo x} & \textbf{Nodo y} & \textbf{Nodo z} \\
+\hline
+\multirow{4}{*}{\textbf{t=0}} & da: x y z & da: x y z & da: x y z \\
+ & x: 0 2 7 & x: $\infty$ 0 $\infty$ & x: $\infty$ $\infty$ 0 \\
+ & y: $\infty$ 0 $\infty$ & y: 2 0 1 & y: $\infty$ 0 $\infty$ \\
+ & z: $\infty$ $\infty$ 0 & z: $\infty$ $\infty$ 0 & z: 7 1 0 \\
+\hline
+\multirow{4}{*}{\textbf{t=1}} & da: x y z & da: x y z & da: x y z \\
+ & x: 0 2 3 & x: 2 0 1 & x: 7 1 0 \\
+ & y: 2 0 1 & y: 2 0 1 & y: 2 0 1 \\
+ & z: 7 1 0 & z: 3 1 0 & z: 7 1 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Inizializzazione (t=0)}: Ogni nodo conosce solo i costi verso i suoi vicini diretti e imposta a infinito le distanze verso tutti gli altri nodi.
+
+\textbf{Prima iterazione (t=1)}: Dopo aver ricevuto i vettori dai vicini, ogni nodo ricalcola le proprie stime utilizzando la formula di Bellman-Ford. Ad esempio, il nodo $x$ calcola:
+\begin{itemize}
+  \item $D_x(z) = \min\{c(x,y) + D_y(z), c(x,z) + D_z(z)\} = \min\{2+1, 7+0\} = 3$
+\end{itemize}
+
+L'algoritmo converge quando non ci sono più aggiornamenti da effettuare, garantendo che ogni nodo abbia calcolato i percorsi a costo minimo verso tutte le destinazioni.
+
+\subsubsection*{Modifica dei costi e guasti dei collegamenti}
+Quando un nodo che esegue l'instradamento DV rileva un cambiamento nel costo dei collegamenti con un vicino, aggiorna il proprio vettore delle distanze e, se si verifica un cambiamento nel costo del percorso a costo minimo, trasmette ai suoi vicini il proprio nuovo vettore.
+
+\textbf{Le buone notizie viaggiano veloci:}
+Se il costo di un collegamento diminuisce, l'informazione si propaga rapidamente nella rete. Ogni nodo aggiorna il proprio vettore delle distanze e informa i suoi vicini, portando a una rapida convergenza ai nuovi percorsi a costo minimo.
+
+\textbf{Le cattive notizie viaggiano lente (Count-to-Infinity):}
+Se il costo di un collegamento aumenta, l'informazione si propaga lentamente. Questo può causare loop di instradamento, con i nodi che si inviano pacchetti a vicenda, e i vettori delle distanze che "contano all'infinito" fino a quando non vengono trovati i nuovi percorsi a costo minimo.
+
+\begin{center}
+    \includegraphics[width=0.7\textwidth]{./img/counttoinfinity.png}
+\end{center}
+
+\textbf{Esempio di Count-to-Infinity:}
+\begin{itemize}
+    \item Inizialmente, il costo del collegamento tra x e y è 4.
+    \item Il costo del collegamento tra x e y aumenta a 60.
+    \item Il nodo y aggiorna il suo vettore delle distanze e informa z.
+    \item Il nodo z, vedendo che il costo per raggiungere x attraverso y è aumentato, potrebbe erroneamente pensare che il percorso migliore sia attraverso y, creando un loop di instradamento.
+    \item L'algoritmo converge solo dopo molte iterazioni, quando i costi si stabilizzano.
+\end{itemize}
+
+\subsubsection*{Inversione Avvelenata (Poisoned Reverse)}
+Per mitigare il problema del "count-to-infinity", si utilizza una tecnica chiamata \textbf{inversione avvelenata (poisoned reverse)}. L'idea è semplice: se un nodo z instrada il traffico verso una destinazione x attraverso un vicino y, allora z comunicherà a y che la sua distanza verso x è infinita. In questo modo, si evita che y scelga z come percorso per raggiungere x, prevenendo i loop di instradamento.
+
+\textbf{Esempio di Inversione Avvelenata:}
+\begin{itemize}
+    \item Inizialmente, z instrada verso x attraverso y.
+    \item z annuncia a y che la sua distanza verso x è infinita.
+    \item Se il costo del collegamento tra x e y aumenta, y non sceglierà z come percorso alternativo, poiché z ha annunciato una distanza infinita.
+    \item y sceglierà un altro percorso, se disponibile, o annuncerà a sua volta una distanza infinita verso x.
+\end{itemize}
+
+L'inversione avvelenata non risolve il problema del "count-to-infinity" in tutti i casi, specialmente quando ci sono loop che coinvolgono più di due nodi.
+
+\subsubsection{Confronto tra gli instradamenti LS e DV}
+I due meccanismi di instradamento utilizzano approcci complementari nel calcolare i percorsi. Nel DV ciascun nodo dialoga solo con i vicini direttamente connessi, informandoli delle stime a costo minimo da sé stesso a tutti i nodi (che conosce) nella rete. Nel LS ciascun nodo dialoga con tutti gli altri nodi via broadcast, ma comunica loro solo i costi dei collegamenti direttamente connessi.
+
+\begin{itemize}
+    \item \textbf{Complessità dei messaggi:}
+        \begin{itemize}
+            \item \textit{LS:} Richiede che ciascun nodo conosca il costo di ogni collegamento nella rete. Ciò implica l'invio di \(O(|N| \cdot |E|)\) messaggi.
+            \item \textit{DV:} Richiede scambi di messaggi tra nodi adiacenti.
+        \end{itemize}
+    \item \textbf{Velocità di convergenza:}
+        \begin{itemize}
+            \item \textit{LS:} Converge rapidamente, con una complessità di \(O(|N|^2)\) in un'implementazione semplice.
+            \item \textit{DV:} Può convergere lentamente e può presentare cicli di instradamento.
+        \end{itemize}
+    \item \textbf{Robustezza:}
+        \begin{itemize}
+            \item \textit{LS:} Più robusto, poiché un nodo può comunicare via broadcast un costo sbagliato solo per uno dei suoi collegamenti connessi.
+            \item \textit{DV:} Meno robusto, poiché un nodo può comunicare percorsi a costo minimo errati a tutte le destinazioni, e questi errori possono propagarsi per l'intera rete.
+        \end{itemize}
+\end{itemize}
+
+In conclusione, nessuno dei due meccanismi di instradamento è nettamente superiore all'altro ed entrambi vengono utilizzati in Internet.
+
+\subsection{Instradamento interno ai sistemi autonomi: OSPF}
+L'organizzazione dei router in \textbf{sistemi autonomi (AS)} è motivata da due principali esigenze:
+\begin{itemize}
+    \item \textbf{Scalabilità:} Con la crescita esponenziale di Internet, è diventato impraticabile per ogni router mantenere una conoscenza completa della topologia di rete. I sistemi autonomi permettono di dividere la rete in domini più piccoli e gestibili.
+    \item \textbf{Autonomia Amministrativa:} Ogni organizzazione (es. un ISP) desidera gestire la propria rete in modo indipendente, scegliendo i propri protocolli di instradamento e le proprie policy. I sistemi autonomi forniscono questa autonomia.
+\end{itemize}
+
+Un \textbf{sistema autonomo (AS)} è un gruppo di router sotto un unico controllo amministrativo. Ogni AS è identificato da un numero di sistema autonomo (ASN) univoco, assegnato da ICANN.
+
+All'interno di un AS, i router utilizzano un protocollo di instradamento interno (intra-AS) per scambiarsi informazioni e calcolare i percorsi. 
+
+\subsubsection*{OSPF (Open Shortest Path First)}
+\textbf{OSPF} è un protocollo di instradamento \textbf{link-state} utilizzato per l'instradamento interno ai sistemi autonomi (intra-AS). 
+
+\noindent \textbf{Funzionamento di OSPF:}
+\begin{itemize}
+    \item \textbf{Flooding delle Informazioni di Stato del Collegamento:} Ogni router OSPF invia informazioni sullo stato dei suoi collegamenti a tutti gli altri router nell'AS.
+    \item \textbf{Algoritmo di Dijkstra:} Ogni router utilizza l'algoritmo di Dijkstra per calcolare il percorso a costo minimo verso tutte le altre destinazioni nell'AS.
+    \item \textbf{Costi dei Collegamenti:} I costi dei collegamenti sono impostati dall'amministratore di rete e possono essere basati su vari fattori.
+    \item \textbf{Aggiornamenti di Stato del Collegamento:} I router OSPF inviano aggiornamenti ogni volta che si verifica un cambiamento nello stato di un collegamento.
+    \item \textbf{Messaggi OSPF:} I messaggi OSPF sono trasportati direttamente in datagrammi IP con numero di protocollo 89.
+    \item \textbf{Messaggi HELLO:} I router OSPF utilizzano messaggi HELLO per scoprire e mantenere le relazioni con i vicini.
+\end{itemize}
+
+\noindent \textbf{Vantaggi di OSPF:}
+\begin{itemize}
+    \item \textbf{Sicurezza:} OSPF supporta l'autenticazione per prevenire l'iniezione di informazioni di instradamento false. Questo viene fatto tramite l'uso di chiavi segrete condivise tra i router, che vengono utilizzate per calcolare un hash MD5 del contenuto del messaggio. Il router ricevente calcola a sua volta l'hash e lo confronta con quello ricevuto per verificare l'autenticità del messaggio.
+    \item \textbf{Percorsi a Costo Uguale Multipli:} OSPF permette l'uso di più percorsi a costo uguale per il bilanciamento del carico, distribuendo il traffico su più collegamenti e migliorando le prestazioni.
+    \item \textbf{Supporto Unicast e Multicast Integrato:} OSPF supporta sia l'instradamento unicast che multicast, utilizzando un'estensione chiamata MOSPF (Multicast OSPF).
+    \item \textbf{Instradamento Gerarchico:} OSPF supporta l'instradamento gerarchico dividendo un AS in aree. Ogni area ha un proprio algoritmo di instradamento, e un'area di backbone collega le diverse aree. Questo riduce l'overhead di instradamento e migliora la scalabilità. I router di confine di area \textit{area border routers} si occupano di instradare il traffico tra le aree.
+\end{itemize}
+
+\subsection{Instradamento tra ISP: BGP}
+Mentre OSPF gestisce l'instradamento all'interno di un sistema autonomo (\textbf{intra-AS}), per collegare diversi sistemi autonomi (AS) è necessario un protocollo di instradamento inter-AS. Il \textbf{Border Gateway Protocol (BGP)} è lo standard de facto per questo scopo.
+
+\subsubsection{Il ruolo di BGP}
+BGP è un protocollo di tipo distance-vector che permette ai router di scambiarsi informazioni di raggiungibilità per i prefissi CIDR, ovvero gruppi di indirizzi IP. Invece di instradare verso un singolo indirizzo IP, BGP instrada verso intere sottoreti.
+
+Le due funzioni principali di BGP sono:
+\begin{enumerate}
+    \item \textbf{Ottenere informazioni sulla raggiungibilità:} BGP permette a un AS di annunciare la propria esistenza e i prefissi che gestisce al resto di Internet.
+    \item \textbf{Determinare i percorsi ottimali:} Quando un router riceve più percorsi per lo stesso prefisso, BGP aiuta a scegliere il percorso migliore, basandosi su informazioni di raggiungibilità e policy locali.
+\end{enumerate}
+
+\subsubsection{Distribuzione delle informazioni dei percorsi in BGP}
+Si consideri la rete della figura sottostante con tre AS: AS1, AS2 e AS3, quest'ultimo con una sottorete di prefisso x. Ogni router, in ogni AS, funge sia da \textbf{router gateway}, vale a dire un router di bordo direttamente connesso a uno o più router di altri AS, sia da \textbf{router interno}, connesso cioè solo a host e router interni all'AS. In AS1, per esempio, il router 1c è un router gateway, mentre 1a, 1b e 1d sono router interni.
+
+\begin{center}
+    \includegraphics[width=0.7\textwidth]{./img/reteAS.png}
+\end{center}
+
+Per distribuire le informazioni di raggiungibilità, BGP utilizza due tipi di sessioni:
+\begin{itemize}
+    \item \textbf{Sessione eBGP (External BGP):} Sessioni tra router di sistemi autonomi (AS) diversi.
+    \item \textbf{Sessione iBGP (Internal BGP):} Sessioni tra router all'interno dello stesso AS.
+\end{itemize}
+
+\noindent \textbf{Processo di Annuncio dei Percorsi:}
+\begin{enumerate}
+    \item Un router gateway in un AS annuncia un prefisso ai suoi vicini in altri AS tramite una sessione eBGP.
+    \item Il router ricevente propaga l'informazione ai suoi vicini interni tramite sessioni iBGP.
+    \item Questo processo si ripete, con ogni router che aggiunge il proprio AS al percorso (AS-PATH), fino a quando l'informazione di raggiungibilità si è diffusa in tutta la rete.
+\end{enumerate}
+
+\noindent \textbf{Esempio di Annuncio:}
+\begin{itemize}
+    \item AS3 annuncia il prefisso x ad AS2.
+    \item AS2 annuncia il percorso "AS2 AS3 x" ad AS1.
+    \item In questo modo, AS1 sa che per raggiungere x deve passare attraverso AS2 e poi AS3.
+\end{itemize}
+
+\begin{center}
+    \includegraphics[width=0.7\textwidth]{./img/ebgpibgp.png}
+\end{center}
+
+\noindent \textbf{Considerazioni Aggiuntive:}
+\begin{itemize}
+    \item Le sessioni BGP sono connessioni TCP semi-permanenti sulla porta 179.
+    \item Le sessioni BGP non sempre corrispondono a collegamenti fisici diretti.
+\end{itemize}
+
+\subsubsection{Selezione delle rotte migliori in BGP}
+Un router può ricevere annunci per più percorsi verso la stessa destinazione. Per scegliere il percorso migliore, BGP non si basa solo sul costo, ma valuta una serie di \textbf{attributi BGP} associati a ogni \textbf{rotta} (\textit{route}).
+
+I due attributi più importanti per la selezione del percorso sono:
+\begin{itemize}
+    \item \textbf{AS-PATH}: Questo attributo elenca la sequenza di Sistemi Autonomi (AS) che un annuncio di rotta ha attraversato per raggiungere il router. Quando un annuncio passa da un AS a un altro, l'ASN (il numero identificativo dell'AS) di partenza viene aggiunto alla lista. Lo scopo principale di questo attributo è la \textbf{rilevazione dei loop}: se un router riceve un annuncio e vede il proprio ASN già presente nell'AS-PATH, scarta l'annuncio per evitare un ciclo di instradamento.
+    \item \textbf{NEXT-HOP}: Questo attributo indica l'indirizzo IP dell'interfaccia del router del \textit{prossimo} AS a cui inoltrare il pacchetto per seguire quel determinato percorso. L'attributo NEXT-HOP è fondamentale perché collega l'instradamento inter-AS (BGP) con quello intra-AS (es. OSPF). Un router all'interno di un AS, per utilizzare un percorso BGP, deve prima sapere come raggiungere l'indirizzo del NEXT-HOP, e per farlo utilizza il proprio protocollo di instradamento interno.
+\end{itemize}
+
+In sostanza, una rotta BGP può essere vista come una tupla di tre elementi: \texttt{(prefisso, AS-PATH, NEXT-HOP)}.
+
+\begin{center}
+    \includegraphics[width=0.7\textwidth]{./img/next-hop.png}
+\end{center}
+
+Nella Figura soprastante, il router \texttt{1c} in AS1 impara due rotte per il prefisso \texttt{x} in AS3:
+\begin{itemize}
+    \item Una rotta con \textbf{AS-PATH "AS2 AS3"} e \textbf{NEXT-HOP "X"} l'indirizzo IP dell'interfaccia del router \texttt{2a}.
+    \item Una rotta con \textbf{AS-PATH "AS3"} e \textbf{NEXT-HOP "x"} l'indirizzo IP dell'interfaccia del router \texttt{3d}.
+\end{itemize}
+Il router dovrà quindi usare un algoritmo di selezione per decidere quale di questi due percorsi inserire nella sua tabella di inoltro.
+
+\subsubsection*{Instradamento "Hot Potato"}
+L'instradamento \textbf{hot potato} (o "patata bollente") è un semplice algoritmo di routing BGP utilizzato per scegliere tra più percorsi verso una destinazione esterna.
+
+L'idea alla base è che un router cerchi di "liberarsi" del pacchetto, passandolo a un altro AS, il più rapidamente possibile, senza preoccuparsi dei costi delle tratte successive del percorso al di fuori del proprio sistema autonomo. È un algoritmo \textbf{egoista}, poiché cerca di minimizzare il costo per il proprio AS, non il costo totale del percorso end-to-end.
+
+\noindent \textbf{Processo di selezione:}
+\begin{enumerate}
+    \item Il router impara più percorsi BGP per una destinazione esterna, ognuno con un diverso attributo \texttt{NEXT-HOP}.
+    \item Per ogni percorso, il router utilizza il suo protocollo di instradamento \textbf{intra-AS} (es. OSPF) per calcolare il costo per raggiungere l'indirizzo IP del \texttt{NEXT-HOP}.
+    \item Il router sceglie il percorso il cui \texttt{NEXT-HOP} è raggiungibile con il costo minore.
+    \item Una volta scelto il gateway, il router inserisce la corrispondente voce \texttt{(prefisso, interfaccia)} nella sua tabella di inoltro.
+\end{enumerate}
+
+\begin{center}
+    \includegraphics[width=\textwidth]{./img/hotpotato_steps.png}
+\end{center}
+
+Prendendo in considerazione l'immagine precedente, se il router \texttt{1b} deve scegliere tra un percorso che passa per il router \texttt{2a} e uno che passa per \texttt{3d}, calcolerà il costo interno per raggiungere \texttt{2a} e il costo interno per raggiungere \texttt{3d}. Se il costo per arrivare a \texttt{2a} è 2 e quello per arrivare a \texttt{3d} è 3, il router \texttt{1b} sceglierà il percorso che passa per \texttt{2a}, anche se il resto del percorso potrebbe essere più costoso.
+
+\begin{center}
+    \includegraphics[width=0.7\textwidth]{./img/next-hop.png}
+\end{center}
+
+È importante notare che, a causa di questo approccio, router diversi nello stesso AS potrebbero scegliere percorsi diversi per la stessa destinazione finale.
+
+
 
