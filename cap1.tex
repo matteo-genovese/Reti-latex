@@ -196,3 +196,44 @@ L'\textbf{incapsulamento} è il processo mediante il quale i dati vengono avvolt
 
 In sostanza, l'incapsulamento è il processo di avvolgere i dati con intestazioni man mano che si spostano verso il basso nella pila protocollare, consentendo la comunicazione tra i livelli e attraverso le reti. 
 
+\section{Il modello di riferimento ISO/OSI}
+
+Mentre il modello TCP/IP (descritto nel Paragrafo 1.4.1) è il modello de facto su cui si basa Internet, esiste un altro modello concettuale ampiamente utilizzato per la didattica e la standardizzazione: il \textbf{modello di riferimento ISO/OSI} (\textit{ISO/OSI reference model}). Sviluppato dall'International Organization for Standardization (ISO), il modello \textbf{Open Systems Interconnection} (\textit{OSI}) organizza le funzioni di rete in una pila gerarchica di sette livelli.
+
+Questo modello fornisce una terminologia precisa e una suddivisione rigorosa delle responsabilità, utile per comprendere come i diversi protocolli interagiscono.
+
+I sette livelli del modello ISO/OSI, partendo dal più alto (livello utente) al più basso (livello fisico), sono:
+
+\begin{description}
+    \item[7. Livello di Applicazione (Application Layer)] È il livello più vicino all'utente finale. Fornisce i servizi di rete direttamente alle applicazioni software (come browser web, client di posta elettronica). Protocolli come \textbf{HTTP} o \textbf{SMTP} risiedono a questo livello.
+
+    \item[6. Livello di Presentazione (Presentation Layer)] Questo livello si occupa della "presentazione" dei dati, ovvero della loro sintassi e semantica. È responsabile della \textbf{traduzione} dei formati (es. da ASCII a EBCDIC), della \textbf{compressione} dei dati per ridurre i bit da trasmettere e della \textbf{crittografia} per garantire la confidenzialità.
+
+    \item[5. Livello di Sessione (Session Layer)] Ha il compito di stabilire, gestire e terminare le \textbf{sessioni} di comunicazione tra due host. Gestisce il "dialogo" tra le applicazioni, ad esempio tramite checkpoint e meccanismi di ripristino in caso di interruzione della comunicazione.
+
+    \item[4. Livello di Trasporto (Transport Layer)] Fornisce il trasferimento dei dati \textit{end-to-end} (da processo a processo). Offre servizi simili a quelli del livello di trasporto TCP/IP, come il \textbf{trasferimento dati affidabile} (tipicamente \textbf{TCP}) e non affidabile (\textbf{UDP}), il controllo di flusso e il controllo di congestione.
+
+    \item[3. Livello di Rete (Network Layer)] È responsabile dell'instradamento (\textit{routing}) dei pacchetti attraverso la rete, determinando il percorso migliore dalla sorgente alla destinazione. Gestisce l'\textbf{indirizzamento logico} (come gli indirizzi IP).
+
+    \item[2. Livello di Collegamento (Data Link Layer)] Si occupa del trasferimento affidabile dei dati tra due nodi \textbf{adiacenti} (un singolo "hop"). Gestisce l'accesso al mezzo fisico, l'\textbf{indirizzamento fisico} (indirizzi MAC) e il rilevamento (e a volte la correzione) degli errori a livello di frame.
+
+    \item[1. Livello Fisico (Physical Layer)] Definisce le specifiche fisiche ed elettriche per la trasmissione dei singoli \textbf{bit} sul mezzo trasmissivo (cavi di rame, fibra ottica, onde radio).
+\end{description}
+
+\subsection{Confronto tra ISO/OSI e TCP/IP}
+
+Sebbene il modello ISO/OSI a 7 livelli sia un eccellente strumento didattico e di standardizzazione (\textit{de jure}), il modello \textbf{TCP/IP} (tipicamente descritto a 4 o 5 livelli) è il modello pratico (\textit{de facto}) su cui Internet è stata costruita.
+
+Il confronto principale tra i due modelli, basandoci sulla pila a 5 livelli di Internet usata in questo manuale , è il seguente:
+
+\begin{itemize}
+    \item \textbf{Livelli Superiori:} Il modello TCP/IP raggruppa le funzionalità dei tre livelli più alti di ISO/OSI (Applicazione, Presentazione e Sessione) in un unico \textbf{Livello di Applicazione} . Si assume che sia l'applicazione stessa a gestire le problematiche di presentazione (es. crittografia tramite TLS, che opera "sopra" il trasporto) e di sessione.
+
+    \item \textbf{Livelli Intermedi:} I livelli di Trasporto e di Rete del modello TCP/IP corrispondono quasi perfettamente agli omonimi livelli 4 e 3 del modello ISO/OSI.
+
+    \item \textbf{Livelli Inferiori:} I livelli di Collegamento e Fisico del modello TCP/IP corrispondono direttamente ai livelli 2 e 1 del modello ISO/OSI.
+
+    \item \textbf{Origine:} Il modello TCP/IP è nato "sul campo" durante lo sviluppo di ARPANET e Internet, focalizzandosi sui protocolli necessari per far funzionare la rete. Il modello ISO/OSI è stato sviluppato in modo più teorico e prescrittivo da un comitato di standardizzazione.
+\end{itemize}
+
+In sintesi, mentre \textbf{ISO/OSI} è un modello di riferimento ideale per descrivere \textit{tutte} le possibili funzioni di una rete, \textbf{TCP/IP} è il modello implementativo che ha decretato il successo di Internet.
